@@ -8,6 +8,7 @@ export type MetricPageProps = {
   showTopCards?: boolean;
   contentWidth?: "normal" | "wide" | "full";
   titleClassName?: string;
+  hideHeader?: boolean;
 };
 
 export default function MetricPage({
@@ -18,6 +19,7 @@ export default function MetricPage({
   showTopCards = true,
   contentWidth = "normal",
   titleClassName,
+  hideHeader = false,
 }: MetricPageProps) {
   const widthClass =
     contentWidth === "full"
@@ -28,20 +30,22 @@ export default function MetricPage({
 
   return (
     <div className={`mx-auto w-full ${widthClass} px-4 py-6 sm:px-6 sm:py-8`}>
-      <header className="mb-6">
-        <h1
-          className={`text-balance text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-3xl ${
-            titleClassName ?? ""
-          }`}
-        >
-          {title}
-        </h1>
-        {description ? (
-          <p className="mt-2 max-w-3xl text-pretty text-sm leading-6 text-zinc-600 dark:text-zinc-300">
-            {description}
-          </p>
-        ) : null}
-      </header>
+      {!hideHeader ? (
+        <header className="mb-6">
+          <h1
+            className={`text-balance text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-3xl ${
+              titleClassName ?? ""
+            }`}
+          >
+            {title}
+          </h1>
+          {description ? (
+            <p className="mt-2 max-w-3xl text-pretty text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+              {description}
+            </p>
+          ) : null}
+        </header>
+      ) : null}
 
       {showTopCards ? (
         <section className="grid grid-cols-1 gap-4 md:grid-cols-3">

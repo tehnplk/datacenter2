@@ -228,7 +228,7 @@ export default async function Page({
   return (
     <MetricPage
       title="Case Mix Index (CMI) และ Sum adjRW ในภาพรวม และแยกตามหน่วยบริการ"
-      titleClassName="text-[20px] sm:text-[26px]"
+      titleClassName="text-sm sm:text-sm"
       showTopCards={false}
       contentWidth="full"
     >
