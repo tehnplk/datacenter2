@@ -57,7 +57,7 @@ export default function Sidebar({
       <div className="flex h-14 items-center gap-2 border-b border-zinc-200/70 px-3 dark:border-white/10">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-zinc-900 text-white dark:bg-white dark:text-zinc-950">
-            <span className="text-[11px] font-bold">PH</span>
+            <span className="text-[11px] font-bold">PLK</span>
           </div>
           <div
             className={`min-w-0 overflow-hidden transition-[max-width,opacity,transform] duration-300 ease-in-out ${
@@ -67,7 +67,7 @@ export default function Sidebar({
             }`}
           >
             <div className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-              PHL Dashboard
+              PLK Health
             </div>
             <div className="truncate text-xs text-zinc-500 dark:text-zinc-400">
               v0.1

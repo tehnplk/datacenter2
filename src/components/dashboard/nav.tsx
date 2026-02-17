@@ -25,17 +25,11 @@ export const DASHBOARD_NAV: NavGroup[] = [
     label: "Drgs",
     icon: <DrgsIcon className="h-4 w-4" />,
     items: [
-      { id: "cmi", label: "CMI", href: "/Drgs/cmi" },
-      { id: "adjrw", label: "sum adjRW", href: "/Drgs/adjrw" },
+      { id: "cmi", label: "AdjRW/CMI", href: "/Drgs/cmi" },
       {
         id: "top-adjrw",
-        label: "Top 10 sumadjust RW (ราย รพ.)",
+        label: "TOP 10 AdjRW",
         href: "/Drgs/top-adjrw",
-      },
-      {
-        id: "top-cmi",
-        label: "Top 10 CMI (ราย รพ.)",
-        href: "/Drgs/top-cmi",
       },
     ],
   },
@@ -48,26 +42,6 @@ export const DASHBOARD_NAV: NavGroup[] = [
         id: "paperless",
         label: "Paperless Refer (อิเล็กทรอนิกส์ 100%)",
         href: "/ER-Refer/paperless",
-      },
-      {
-        id: "consult-response",
-        label: "เวลา Consult → ตอบรับแผน (รพ.แม่ข่าย)",
-        href: "/ER-Refer/consult-response-time",
-      },
-      {
-        id: "refer-travel",
-        label: "เวลา Refer ต้นทาง → ปลายทาง (รถฉุกเฉิน)",
-        href: "/ER-Refer/refer-travel-time",
-      },
-      {
-        id: "red-bypass-er",
-        label: "วิกฤตสีแดง: เข้า Cath/Stroke/OR ได้ทันที",
-        href: "/ER-Refer/red-bypass-er",
-      },
-      {
-        id: "avoidable",
-        label: "พบว่า รพช.เดิมทำได้ (ศักยภาพ)",
-        href: "/ER-Refer/avoidable-refer",
       },
       {
         id: "top10",
