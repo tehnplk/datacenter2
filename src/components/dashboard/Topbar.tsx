@@ -11,7 +11,7 @@ type ConnectionRow = {
   status: string | null;
 };
 
-const STALE_MINUTES = 60;
+const STALE_MINUTES = 180;
 
 function parseConnectedAt(value: string | null) {
   if (!value) return null;
