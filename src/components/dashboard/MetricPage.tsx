@@ -28,6 +28,16 @@ export default function MetricPage({
         ? "max-w-7xl"
         : "max-w-6xl";
 
+  if (!children) {
+    return (
+      <div className={`mx-auto w-full ${widthClass} px-4 py-6 sm:px-6 sm:py-8`}>
+        <div className="flex min-h-[260px] items-center justify-center rounded-2xl border border-dashed border-zinc-200/70 bg-zinc-50 text-sm font-medium text-zinc-500 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-zinc-400">
+          อยู่ระหว่างจัดเตรียมข้อมูล
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`mx-auto w-full ${widthClass} px-4 py-6 sm:px-6 sm:py-8`}>
       {!hideHeader ? (
@@ -68,28 +78,7 @@ export default function MetricPage({
       ) : null}
 
       <section className="mt-6 rounded-2xl border border-zinc-200/70 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-zinc-950">
-        {children ? (
-          children
-        ) : (
-          <>
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-                พื้นที่แสดงผล (Placeholder)
-              </h2>
-              <span className="rounded-full bg-zinc-100 px-2.5 py-1 text-[11px] font-medium text-zinc-700 dark:bg-white/10 dark:text-zinc-200">
-                รอเชื่อมข้อมูล
-              </span>
-            </div>
-            <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-12">
-              <div className="lg:col-span-8">
-                <div className="h-64 rounded-xl bg-zinc-50 ring-1 ring-zinc-200/70 dark:bg-white/5 dark:ring-white/10" />
-              </div>
-              <div className="lg:col-span-4">
-                <div className="h-64 rounded-xl bg-zinc-50 ring-1 ring-zinc-200/70 dark:bg-white/5 dark:ring-white/10" />
-              </div>
-            </div>
-          </>
-        )}
+        {children}
 
         {notes?.length ? (
           <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-zinc-600 dark:text-zinc-300">
