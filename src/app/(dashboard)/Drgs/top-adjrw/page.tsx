@@ -1,0 +1,14 @@
+import MetricPage from "@/components/dashboard/MetricPage";
+
+export default function Page() {
+  return (
+    <MetricPage
+      title="DRGs: Top 10 กลุ่มโรค (sumadjust RW สูงสุด)"
+      description="แสดง 10 อันดับกลุ่มโรคของแต่ละโรงพยาบาลที่มี sumadjust RW สูงสุด"
+      notes={[
+        "รูปแบบแนะนำ: ตาราง + bar chart (Top 10) ต่อโรงพยาบาล",
+        "ควรมีตัวกรอง: โรงพยาบาล, ช่วงวันที่, IPD/AdjRW rule",
+      ]}
+    />
+  );
+}

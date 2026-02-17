@@ -1,0 +1,167 @@
+import type { ReactNode } from "react";
+import {
+  DrgsIcon,
+  ERPIcon,
+  ERReferIcon,
+  ICUIcon,
+  ORIcon,
+  PharmaIcon,
+} from "@/components/dashboard/icons";
+
+export type NavGroup = {
+  id: string;
+  label: string;
+  icon: ReactNode;
+  items: Array<{
+    id: string;
+    label: string;
+    href: string;
+  }>;
+};
+
+export const DASHBOARD_NAV: NavGroup[] = [
+  {
+    id: "drgs",
+    label: "Drgs",
+    icon: <DrgsIcon className="h-4 w-4" />,
+    items: [
+      { id: "cmi", label: "CMI", href: "/Drgs/cmi" },
+      { id: "adjrw", label: "sum adjRW", href: "/Drgs/adjrw" },
+      {
+        id: "top-adjrw",
+        label: "Top 10 sumadjust RW (ราย รพ.)",
+        href: "/Drgs/top-adjrw",
+      },
+      {
+        id: "top-cmi",
+        label: "Top 10 CMI (ราย รพ.)",
+        href: "/Drgs/top-cmi",
+      },
+    ],
+  },
+  {
+    id: "er-refer",
+    label: "ER/Refer",
+    icon: <ERReferIcon className="h-4 w-4" />,
+    items: [
+      {
+        id: "paperless",
+        label: "Paperless Refer (อิเล็กทรอนิกส์ 100%)",
+        href: "/ER-Refer/paperless",
+      },
+      {
+        id: "consult-response",
+        label: "เวลา Consult → ตอบรับแผน (รพ.แม่ข่าย)",
+        href: "/ER-Refer/consult-response-time",
+      },
+      {
+        id: "refer-travel",
+        label: "เวลา Refer ต้นทาง → ปลายทาง (รถฉุกเฉิน)",
+        href: "/ER-Refer/refer-travel-time",
+      },
+      {
+        id: "red-bypass-er",
+        label: "วิกฤตสีแดง: เข้า Cath/Stroke/OR ได้ทันที",
+        href: "/ER-Refer/red-bypass-er",
+      },
+      {
+        id: "avoidable",
+        label: "พบว่า รพช.เดิมทำได้ (ศักยภาพ)",
+        href: "/ER-Refer/avoidable-refer",
+      },
+      {
+        id: "top10",
+        label: "ประเภท/รหัส/สาเหตุ Refer in/out 10 อันดับ",
+        href: "/ER-Refer/top10-cause",
+      },
+    ],
+  },
+  {
+    id: "icu",
+    label: "ICU",
+    icon: <ICUIcon className="h-4 w-4" />,
+    items: [
+      {
+        id: "occupancy",
+        label: "อัตราครองเตียง ICU & semi ICU (ราย รพ.)",
+        href: "/ICU/bed-occupancy",
+      },
+      {
+        id: "wait-bed",
+        label: "ระยะเวลารอเตียง ICU (เฉลี่ย)",
+        href: "/ICU/wait-icu-bed",
+      },
+      {
+        id: "critical-mortality",
+        label: "อัตราตายโรควิกฤตสำคัญ (Sepsis, AMI)",
+        href: "/ICU/critical-mortality",
+      },
+      {
+        id: "realtime",
+        label: "จำนวนเคส semi icu → icu (real time)",
+        href: "/ICU/semi-icu-realtime",
+      },
+      {
+        id: "icu-deaths",
+        label: "การตายใน ICU / semi ICU (Top 10 + Rate)",
+        href: "/ICU/icu-death-analysis",
+      },
+      {
+        id: "ward-deaths",
+        label: "การตายใน ward ธรรมดา (Top 10 + Rate)",
+        href: "/ICU/ward-death-analysis",
+      },
+    ],
+  },
+  {
+    id: "erp",
+    label: "ERP",
+    icon: <ERPIcon className="h-4 w-4" />,
+    items: [
+      {
+        id: "beds",
+        label: "เตียง: รวม/ชายหญิง/ทั่วไป/พิเศษ/ICU/semi + ครองเตียง",
+        href: "/ERP/bed-summary",
+      },
+    ],
+  },
+  {
+    id: "or",
+    label: "OR",
+    icon: <ORIcon className="h-4 w-4" />,
+    items: [
+      {
+        id: "realtime",
+        label: "จำนวนเคสผ่าตัดในห้อง OR (real time)",
+        href: "/OR/realtime-cases",
+      },
+      {
+        id: "utilization",
+        label: "อัตราการใช้ห้องผ่าตัด",
+        href: "/OR/utilization",
+      },
+      {
+        id: "target-wait",
+        label: "เวลารอผ่าตัด: ต้อกระจก, ไส้เลื่อน",
+        href: "/OR/target-wait-time",
+      },
+    ],
+  },
+  {
+    id: "phama",
+    label: "Phama",
+    icon: <PharmaIcon className="h-4 w-4" />,
+    items: [
+      {
+        id: "moph-phr",
+        label: "เชื่อมโยงข้อมูลยาผ่าน Moph-PHR",
+        href: "/Phama/moph-phr-linkage",
+      },
+      {
+        id: "metformin",
+        label: "ความปลอดภัย Metformin (MALA Prevention)",
+        href: "/Phama/metformin-safety",
+      },
+    ],
+  },
+];
