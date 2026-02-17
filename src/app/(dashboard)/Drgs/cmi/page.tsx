@@ -228,6 +228,7 @@ export default async function Page({
   return (
     <MetricPage
       title="Case Mix Index (CMI) และ Sum adjRW ในภาพรวม และแยกตามหน่วยบริการ"
+      description="Case Mix Index (CMI) และ Sum adjRW รายหน่วยบริการ"
       titleClassName="text-sm sm:text-sm"
       showTopCards={false}
       contentWidth="full"
@@ -247,7 +248,7 @@ export default async function Page({
       </div>
 
       <div className="mt-4 overflow-hidden rounded-xl ring-1 ring-zinc-200/70 dark:ring-white/10">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200/70 bg-white px-3 py-2 text-xs text-zinc-500 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-400">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200/70 bg-white px-3 py-2 text-xs text-zinc-500 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-400">
           <div className="whitespace-nowrap">
             {view === "year" ? (
               <>ปี: {yearsAsc[0] ?? "-"} - {yearsAsc.at(-1) ?? "-"}</>

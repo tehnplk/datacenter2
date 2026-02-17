@@ -19,7 +19,7 @@ export default function MetricPage({
   showTopCards = true,
   contentWidth = "normal",
   titleClassName,
-  hideHeader = false,
+  hideHeader = true,
 }: MetricPageProps) {
   const widthClass =
     contentWidth === "full"
@@ -55,6 +55,12 @@ export default function MetricPage({
             </p>
           ) : null}
         </header>
+      ) : null}
+
+      {hideHeader && description ? (
+        <p className="mb-6 max-w-3xl text-pretty text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+          {description}
+        </p>
       ) : null}
 
       {showTopCards ? (
