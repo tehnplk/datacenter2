@@ -5,10 +5,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "PORT=3305 next start",
     "lint": "eslint"
   },
   "dependencies": {
+    "lucide-react": "^0.574.0",
     "next": "16.1.6",
     "pg": "^8.18.0",
     "react": "19.2.3",
