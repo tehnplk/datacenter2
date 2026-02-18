@@ -10,6 +10,7 @@ export const dynamic = "force-dynamic";
 type DrgsSumRow = {
   hoscode: string;
   hosname: string | null;
+  hosname_short: string | null;
   y: number;
   m: number;
   cases: number;
@@ -20,11 +21,13 @@ type DrgsSumRow = {
 type HosRow = {
   hoscode: string;
   hosname: string;
+  hosname_short: string | null;
 };
 
 type YearSummaryRow = {
   hoscode: string;
   hosname: string;
+  hosname_short: string | null;
   cases: number;
   sum_adjrw: number;
   cmi: number | null;
@@ -33,6 +36,7 @@ type YearSummaryRow = {
 type YearPivotRow = {
   hoscode: string;
   hosname: string;
+  hosname_short: string | null;
   y: number | null;
   cases: number;
   sum_adjrw: number;
@@ -61,14 +65,18 @@ function fmtNumber(n: number, digits = 2) {
   }).format(n);
 }
 
-function shortHosName(name: string) {
-  const raw = name.trim();
+function displayHosName(name?: string | null, shortName?: string | null) {
+  const candidate = shortName?.trim();
+  if (candidate) return candidate;
 
-  // Special cases (จังหวัดพิษณุโลก)
+  if (!name) return "-";
+  const raw = name.trim();
+  if (!raw) return "-";
+
+  // Legacy fallback rules
   if (raw.includes("สมเด็จพระยุพราชนครไทย")) return "รพร.นครไทย";
   if (raw.includes("พุทธชินราช")) return "รพศ.พุทธชินราช";
 
-  // Common prefix in source data: "โรงพยาบาล..." → display as "รพ...."
   return raw.replace(/^โรงพยาบาล\s*/u, "รพ.");
 }
 
@@ -92,13 +100,14 @@ export default async function Page({
 
   const [hosList, rows, yearSummary, yearPivot, meta] = await Promise.all([
     dbQuery<HosRow>(
-      `select hoscode, hosname from public.c_hos order by hosname asc;`,
+      `select hoscode, hosname, hosname_short from public.c_hos order by hosname asc;`,
     ),
     dbQuery<DrgsSumRow>(
       `
       select
         s.hoscode,
         h.hosname,
+        h.hosname_short,
         s.y,
         s.m,
         sum(s.num_pt)::int as cases,
@@ -107,7 +116,7 @@ export default async function Page({
       from public.transform_sync_drgs_sum s
       left join public.c_hos h on h.hoscode = s.hoscode
       where s.y = $1
-      group by s.hoscode, h.hosname, s.y, s.m
+      group by s.hoscode, h.hosname, h.hosname_short, s.y, s.m
       order by h.hosname asc nulls last, s.hoscode asc, s.m asc;
       `,
       [selectedYear],
@@ -117,6 +126,7 @@ export default async function Page({
       select
         h.hoscode,
         h.hosname,
+        h.hosname_short,
         coalesce(sum(s.num_pt), 0)::int as cases,
         coalesce(sum(s.sum_adjrw), 0)::float8 as sum_adjrw,
         case when sum(s.num_pt) > 0 then (sum(s.sum_adjrw) / sum(s.num_pt))::float8 else null end as cmi
@@ -124,7 +134,7 @@ export default async function Page({
       left join public.transform_sync_drgs_sum s
         on s.hoscode = h.hoscode
        and s.y = $1
-      group by h.hoscode, h.hosname
+      group by h.hoscode, h.hosname, h.hosname_short
       order by h.hosname asc;
       `,
       [selectedYear],
@@ -134,6 +144,7 @@ export default async function Page({
       select
         h.hoscode,
         h.hosname,
+        h.hosname_short,
         s.y,
         coalesce(sum(s.num_pt), 0)::int as cases,
         coalesce(sum(s.sum_adjrw), 0)::float8 as sum_adjrw,
@@ -141,7 +152,7 @@ export default async function Page({
       from public.c_hos h
       left join public.transform_sync_drgs_sum s
         on s.hoscode = h.hoscode
-      group by h.hoscode, h.hosname, s.y
+      group by h.hoscode, h.hosname, h.hosname_short, s.y
       order by h.hosname asc, s.y asc;
       `,
     ),
@@ -219,7 +230,7 @@ export default async function Page({
   const topHosChart = hosListSorted.slice(0, 9);
   const chartSeries = topHosChart.map((h) => ({
     key: h.hoscode,
-    label: shortHosName(h.hosname),
+    label: displayHosName(h.hosname, h.hosname_short),
   }));
 
   const buildChartRows = (
@@ -395,7 +406,7 @@ function MonthTable({
                 {idx + 1}
               </td>
               <td className="border border-zinc-200 px-3 py-2 font-medium whitespace-nowrap dark:border-zinc-800">
-                {shortHosName(h.hosname)}
+                {displayHosName(h.hosname, h.hosname_short)}
               </td>
               {TH_MONTHS.map((_, monthIndex) => {
                 const m = monthIndex + 1;
@@ -480,7 +491,7 @@ function YearTable({
               </td>
               <td className="border border-zinc-200 px-3 py-2 font-medium dark:border-zinc-800">
                 <span className="block max-w-[240px] truncate" title={h.hosname}>
-                  {shortHosName(h.hosname)}
+                  {displayHosName(h.hosname, h.hosname_short)}
                 </span>
               </td>
               {years.map((yy) => {
