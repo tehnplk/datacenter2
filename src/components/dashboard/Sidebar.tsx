@@ -4,15 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import * as React from "react";
 import { DASHBOARD_NAV, type NavGroup } from "@/components/dashboard/nav";
-import {
-  CollapseIcon,
-  ExpandIcon,
-  MinusIcon,
-  PlusIcon,
-} from "@/components/dashboard/icons";
+import { ChevronLeft, ChevronRight, Minus, Plus } from "lucide-react";
 
 type SidebarProps = {
   collapsed: boolean;
+  width?: number;
   onToggleCollapsed: () => void;
   onNavigate?: () => void;
 };
@@ -24,6 +20,7 @@ function isActivePath(pathname: string, href: string) {
 
 export default function Sidebar({
   collapsed,
+  width = 320,
   onToggleCollapsed,
   onNavigate,
 }: SidebarProps) {
@@ -47,11 +44,12 @@ export default function Sidebar({
     });
   }, [pathname]);
 
-  const widthClass = collapsed ? "w-[72px]" : "w-[320px]";
+  const computedWidth = collapsed ? 72 : Math.min(480, Math.max(220, width));
 
   return (
     <aside
-      className={`${widthClass} h-full shrink-0 border-r border-zinc-200/70 bg-white transition-[width] duration-300 ease-in-out dark:border-white/10 dark:bg-zinc-950`}
+      className="h-full shrink-0 border-r border-zinc-200/70 bg-white transition-[width] duration-300 ease-in-out dark:border-white/10 dark:bg-zinc-950"
+      style={{ width: computedWidth }}
       aria-label="เมนูด้านซ้าย"
     >
       <div className="flex h-14 items-center gap-2 border-b border-zinc-200/70 px-3 dark:border-white/10">
@@ -81,7 +79,7 @@ export default function Sidebar({
           className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200/70 bg-white text-zinc-900 shadow-sm hover:bg-zinc-50 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-50 dark:hover:bg-white/5"
           aria-label={collapsed ? "ขยายเมนู" : "ย่อเมนู"}
         >
-          {collapsed ? <ExpandIcon className="h-5 w-5" /> : <CollapseIcon className="h-5 w-5" />}
+          {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
         </button>
       </div>
 
@@ -152,7 +150,7 @@ function Group({
 
         {!collapsed ? (
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-xl text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-white/10">
-            {open ? <MinusIcon className="h-4 w-4" /> : <PlusIcon className="h-4 w-4" />}
+            {open ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
           </span>
         ) : null}
       </button>

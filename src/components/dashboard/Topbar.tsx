@@ -1,8 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Search, X } from "lucide-react";
-import { MenuIcon } from "@/components/dashboard/icons";
+import { Menu, Search, X } from "lucide-react";
 
 type ConnectionRow = {
   hos: string | null;
@@ -101,7 +100,7 @@ export default function Topbar({ onOpenMobileNav }: TopbarProps) {
           className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200/70 bg-white text-zinc-900 shadow-sm hover:bg-zinc-50 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-50 dark:hover:bg-white/5 md:hidden"
           aria-label="เปิดเมนู"
         >
-          <MenuIcon className="h-5 w-5" />
+          <Menu className="h-5 w-5" />
         </button>
 
         <div className="min-w-0">

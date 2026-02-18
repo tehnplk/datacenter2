@@ -1,12 +1,12 @@
 import type { ReactNode } from "react";
 import {
-  DrgsIcon,
-  ERPIcon,
-  ERReferIcon,
-  ICUIcon,
-  ORIcon,
-  PharmaIcon,
-} from "@/components/dashboard/icons";
+  Activity,
+  BarChart3,
+  ClipboardList,
+  Pill,
+  Scissors,
+  Share2,
+} from "lucide-react";
 
 export type NavGroup = {
   id: string;
@@ -23,7 +23,7 @@ export const DASHBOARD_NAV: NavGroup[] = [
   {
     id: "drgs",
     label: "Drgs",
-    icon: <DrgsIcon className="h-4 w-4" />,
+    icon: <BarChart3 className="h-4 w-4" />,
     items: [
       { id: "cmi", label: "AdjRW/CMI", href: "/Drgs/cmi" },
       {
@@ -36,7 +36,7 @@ export const DASHBOARD_NAV: NavGroup[] = [
   {
     id: "er-refer",
     label: "ER/Refer",
-    icon: <ERReferIcon className="h-4 w-4" />,
+    icon: <Share2 className="h-4 w-4" />,
     items: [
       {
         id: "paperless",
@@ -53,7 +53,7 @@ export const DASHBOARD_NAV: NavGroup[] = [
   {
     id: "icu",
     label: "ICU",
-    icon: <ICUIcon className="h-4 w-4" />,
+    icon: <Activity className="h-4 w-4" />,
     items: [
       {
         id: "occupancy",
@@ -90,7 +90,7 @@ export const DASHBOARD_NAV: NavGroup[] = [
   {
     id: "erp",
     label: "ERP",
-    icon: <ERPIcon className="h-4 w-4" />,
+    icon: <ClipboardList className="h-4 w-4" />,
     items: [
       {
         id: "beds",
@@ -102,7 +102,7 @@ export const DASHBOARD_NAV: NavGroup[] = [
   {
     id: "or",
     label: "OR",
-    icon: <ORIcon className="h-4 w-4" />,
+    icon: <Scissors className="h-4 w-4" />,
     items: [
       {
         id: "realtime",
@@ -124,7 +124,7 @@ export const DASHBOARD_NAV: NavGroup[] = [
   {
     id: "phama",
     label: "Phama",
-    icon: <PharmaIcon className="h-4 w-4" />,
+    icon: <Pill className="h-4 w-4" />,
     items: [
       {
         id: "moph-phr",
