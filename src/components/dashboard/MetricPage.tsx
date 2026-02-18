@@ -1,4 +1,5 @@
 import * as React from "react";
+import { FileText } from "lucide-react";
 
 export type MetricPageProps = {
   title: string;
@@ -30,7 +31,7 @@ export default function MetricPage({
 
   if (!children) {
     return (
-      <div className={`mx-auto w-full ${widthClass} px-4 py-6 sm:px-6 sm:py-8`}>
+      <div className={`mx-auto w-full ${widthClass} px-4 py-[2px] sm:px-6 sm:py-[2px]`}>
         <div className="flex min-h-[260px] items-center justify-center rounded-2xl border border-dashed border-green-200 bg-green-50 text-sm font-medium text-green-600 shadow-sm dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">
           อยู่ระหว่างจัดเตรียมข้อมูล
         </div>
@@ -39,7 +40,7 @@ export default function MetricPage({
   }
 
   return (
-    <div className={`mx-auto w-full ${widthClass} px-4 py-6 sm:px-6 sm:py-8`}>
+    <div className={`mx-auto w-full ${widthClass} px-4 py-[2px] sm:px-6 sm:py-[2px]`}>
       {!hideHeader ? (
         <header className="mb-6">
           <h1
@@ -50,7 +51,8 @@ export default function MetricPage({
             {title}
           </h1>
           {description ? (
-            <p className="mt-2 max-w-3xl text-pretty text-sm leading-6 text-green-700 dark:text-green-300">
+            <p className="py-[10px] inline-flex items-center gap-1.5 max-w-3xl text-pretty text-sm leading-6 text-green-700 dark:text-green-300">
+              <FileText className="h-5 w-5 shrink-0" />
               {description}
             </p>
           ) : null}
@@ -58,7 +60,8 @@ export default function MetricPage({
       ) : null}
 
       {hideHeader && description ? (
-        <p className="mb-6 max-w-3xl text-pretty text-sm leading-6 text-green-700 dark:text-green-300">
+        <p className="my-[10px] inline-flex items-center gap-1.5 max-w-3xl text-pretty text-sm leading-6 text-green-700 dark:text-green-300">
+          <FileText className="h-5 w-5 shrink-0" />
           {description}
         </p>
       ) : null}
@@ -83,7 +86,7 @@ export default function MetricPage({
         </section>
       ) : null}
 
-      <section className="mt-6 rounded-2xl border border-green-200 bg-white p-4 shadow-sm dark:border-green-800 dark:bg-green-950">
+      <section className="mt-2 rounded-2xl border border-green-200 bg-white p-4 shadow-sm dark:border-green-800 dark:bg-green-950">
         {children}
 
         {notes?.length ? (
