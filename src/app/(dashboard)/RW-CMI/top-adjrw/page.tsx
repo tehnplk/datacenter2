@@ -1,8 +1,7 @@
 import MetricPage from "@/components/dashboard/MetricPage";
-import HosSelect, { type HosItem } from "@/components/dashboard/HosSelect";
-import MonthSelect from "@/components/dashboard/MonthSelect";
 import YearSelect from "@/components/dashboard/YearSelect";
 import { dbQuery } from "@/lib/db";
+import HospitalTabs, { type HospitalTabItem } from "@/components/dashboard/HospitalTabs";
 
 export const dynamic = "force-dynamic";
 
@@ -12,8 +11,16 @@ type TopAdjrwRow = {
   y: number;
   m: number;
   drgs_code: string;
+  drgs_name: string | null;
   sum_adj_rw: number;
   rank: number;
+};
+
+type TopHosRow = {
+  hoscode: string;
+  hosname: string | null;
+  hosname_short: string | null;
+  total_adjrw: number;
 };
 
 type MetaRow = {
@@ -46,11 +53,9 @@ function fmtNumber(n: number, digits = 2) {
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: { year?: string; hos?: string; month?: string } | Promise<{
-    year?: string;
-    hos?: string;
-    month?: string;
-  }>;
+  searchParams?:
+    | { year?: string; hos?: string }
+    | Promise<{ year?: string; hos?: string }>;
 }) {
   const sp = await Promise.resolve(searchParams ?? {});
 
@@ -61,67 +66,87 @@ export default async function Page({
   const selectedYear =
     toInt(sp.year) ?? (years.length ? years[0] : new Date().getFullYear());
 
-  const selectedHos = sp.hos?.trim() || undefined;
-  const selectedMonth = toInt(sp.month);
+  const selectedHosParam = sp.hos?.trim() || undefined;
 
-  const where: string[] = ["s.y = $1"];
-  const params: Array<string | number> = [selectedYear];
-  if (selectedHos) {
-    params.push(selectedHos);
-    where.push(`s.hoscode = $${params.length}`);
-  }
-  if (selectedMonth) {
-    params.push(selectedMonth);
-    where.push(`s.m = $${params.length}`);
-  }
-
-  const whereSql = where.length ? `where ${where.join(" and ")}` : "";
-
-  const [hosList, rows, meta] = await Promise.all([
-    dbQuery<HosItem>(
-      `select hoscode, hosname from public.c_hos order by hosname asc;`,
-    ),
-    dbQuery<TopAdjrwRow>(
+  const [topHospitals, meta] = await Promise.all([
+    dbQuery<TopHosRow>(
       `
       select
-        s.hoscode,
+        h.hoscode,
         h.hosname,
-        s.y,
-        s.m,
-        s.drgs_code,
-        s.sum_adj_rw::float8 as sum_adj_rw,
-        row_number() over (
-          partition by s.hoscode, s.y, s.m
-          order by s.sum_adj_rw desc, s.drgs_code asc
-        )::int as rank
-      from public.transform_sync_drgs_rw_top10 s
-      left join public.c_hos h on h.hoscode = s.hoscode
-      ${whereSql}
-      order by h.hosname asc nulls last, s.hoscode asc, s.m asc, rank asc;
+        h.hosname_short,
+        coalesce(sum(s.sum_adj_rw), 0)::float8 as total_adjrw
+      from public.c_hos h
+      left join public.transform_sync_drgs_rw_top10 s
+        on s.hoscode = h.hoscode
+       and s.y = $1
+      group by h.hoscode, h.hosname, h.hosname_short
+      order by total_adjrw desc, h.hosname asc nulls last;
       `,
-      params,
+      [selectedYear],
     ),
     dbQuery<MetaRow>(
       `
       select
-        (select count(*)::int from public.transform_sync_drgs_rw_top10 s ${whereSql}) as row_count,
-        (select max(d_update)::text from public.transform_sync_drgs_rw_top10 s ${whereSql}) as last_update;
+        (select count(*)::int from public.transform_sync_drgs_rw_top10 s where s.y = $1) as row_count,
+        (select max(d_update)::text from public.transform_sync_drgs_rw_top10 s where s.y = $1) as last_update;
       `,
-      params,
+      [selectedYear],
     ).then((r) => r[0]),
   ]);
 
+  const tabs: HospitalTabItem[] = topHospitals.map((h) => ({
+    value: h.hoscode,
+    label: h.hosname_short ?? h.hosname ?? h.hoscode,
+  }));
+
+  const selectedHos =
+    (selectedHosParam && tabs.some((t) => t.value === selectedHosParam)
+      ? selectedHosParam
+      : tabs[0]?.value) ?? "";
+
+  const rows = selectedHos
+    ? await dbQuery<TopAdjrwRow>(
+        `
+        select
+          s.hoscode,
+          h.hosname,
+          s.y,
+          s.m,
+          s.drgs_code,
+          d.drgname::text as drgs_name,
+          s.sum_adj_rw::float8 as sum_adj_rw,
+          row_number() over (
+            partition by s.hoscode, s.y, s.m
+            order by s.sum_adj_rw desc, s.drgs_code asc
+          )::int as rank
+        from public.transform_sync_drgs_rw_top10 s
+        left join public.c_hos h on h.hoscode = s.hoscode
+        left join public.c_drgs_63 d on d.drg = s.drgs_code
+        where s.y = $1 and s.hoscode = $2
+        order by s.m asc, rank asc;
+        `,
+        [selectedYear, selectedHos],
+      )
+    : [];
+
+  const rowsByMonth = new Map<number, TopAdjrwRow[]>();
+  for (const r of rows) {
+    const list = rowsByMonth.get(r.m) ?? [];
+    list.push(r);
+    rowsByMonth.set(r.m, list);
+  }
+
   return (
     <MetricPage
-      title="DRGs: Top 10 AdjRW"
-      description="แสดง 10 อันดับกลุ่มโรคของแต่ละโรงพยาบาลที่มี AdjRW สูงสุด"
+      title="RW/CMI: Top AdjRW"
+      description="แสดงกลุ่มโรคที่มี AdjRW สูงสุด แยกรายเดือน (เลือก 1 ใน 9 โรงพยาบาลที่มี AdjRW รวมสูงสุดของปีที่เลือก)"
       showTopCards={false}
       contentWidth="wide"
       hideHeader
     >
       <div className="flex flex-wrap items-center justify-end gap-3">
-        <HosSelect hospitals={hosList} value={selectedHos} />
-        <MonthSelect value={selectedMonth} />
+        <HospitalTabs items={tabs} value={selectedHos} paramName="hos" />
         <YearSelect years={years} value={selectedYear} />
         <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:ring-emerald-500/30">
           Connected
@@ -131,7 +156,7 @@ export default async function Page({
       <div className="mt-4 overflow-hidden rounded-xl ring-1 ring-zinc-200/70 dark:ring-white/10">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200/70 bg-white px-3 py-2 text-xs text-zinc-500 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-400">
           <div className="whitespace-nowrap">
-            ปี: {selectedYear} • อัปเดตเมื่อ: {meta?.last_update ?? "-"} • แถวทั้งหมด: {meta?.row_count ?? 0}
+            ปี: {selectedYear} • อัปเดตเมื่อ: {meta?.last_update ?? "-"}
           </div>
           <div className="whitespace-nowrap text-right">
             ข้อมูลจากตาราง: <span className="font-mono">transform_sync_drgs_rw_top10</span>
@@ -139,34 +164,55 @@ export default async function Page({
         </div>
 
         <div className="overflow-auto bg-white dark:bg-zinc-950">
-          <table className="min-w-[980px] w-full border-separate border-spacing-0 text-xs">
+          {tabs.length === 0 ? (
+            <div className="px-4 py-10 text-center text-sm text-zinc-500 dark:text-zinc-400">
+              ไม่พบข้อมูลโรงพยาบาล
+            </div>
+          ) : (
+          <table className="min-w-[840px] w-full border-separate border-spacing-0 text-xs">
             <thead className="sticky top-0 z-10 bg-white/90 backdrop-blur dark:bg-zinc-950/90">
               <tr>
-                <Th className="sticky left-0 z-20 w-[72px] bg-white/95 dark:bg-zinc-950/95">ลำดับ</Th>
-                <Th className="sticky left-[72px] z-20 w-[260px] bg-white/95 dark:bg-zinc-950/95">ชื่อ รพ.</Th>
                 <Th className="w-[72px] text-center">เดือน</Th>
-                <Th className="w-[120px]">DRGs Code</Th>
-                <Th className="w-[220px]">DRGs Name</Th>
-                <Th className="w-[120px] text-right">AdjRW</Th>
+                <Th className="w-[140px]">DRGs Code</Th>
+                <Th className="min-w-[320px]">DRGs Name</Th>
+                <Th className="w-[140px] text-right">AdjRW</Th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((r, idx) => (
-                <tr key={`${r.hoscode}-${r.m}-${r.drgs_code}-${idx}`}>
-                  <Td className="sticky left-0 z-10 bg-white/95 text-right tabular-nums dark:bg-zinc-950/95">
-                    {r.rank}
+              {rows.length === 0 ? (
+                <tr>
+                  <Td className="py-8 text-center text-zinc-500 dark:text-zinc-400" colSpan={4}>
+                    ไม่พบข้อมูล
                   </Td>
-                  <Td className="sticky left-[72px] z-10 bg-white/95 dark:bg-zinc-950/95">
-                    {r.hosname ?? r.hoscode}
-                  </Td>
-                  <Td className="text-center">{TH_MONTHS[r.m - 1] ?? r.m}</Td>
-                  <Td className="font-mono">{r.drgs_code}</Td>
-                  <Td className="text-zinc-400">-</Td>
-                  <Td className="text-right tabular-nums">{fmtNumber(r.sum_adj_rw, 4)}</Td>
                 </tr>
-              ))}
+              ) : (
+                TH_MONTHS.map((label, idx) => {
+                  const m = idx + 1;
+                  const list = rowsByMonth.get(m) ?? [];
+                  if (!list.length) return null;
+
+                  return list.map((r, rowIdx) => (
+                    <tr key={`${r.hoscode}-${r.y}-${m}-${r.drgs_code}-${rowIdx}`}>
+                      {rowIdx === 0 ? (
+                        <Td
+                          className="text-center font-semibold text-zinc-700 dark:text-zinc-200"
+                          rowSpan={list.length}
+                        >
+                          {label}
+                        </Td>
+                      ) : null}
+                      <Td className="font-mono">{r.drgs_code}</Td>
+                      <Td className={r.drgs_name ? "" : "text-zinc-400"}>
+                        {r.drgs_name ?? "-"}
+                      </Td>
+                      <Td className="text-right tabular-nums">{fmtNumber(r.sum_adj_rw, 4)}</Td>
+                    </tr>
+                  ));
+                })
+              )}
             </tbody>
           </table>
+          )}
         </div>
       </div>
     </MetricPage>

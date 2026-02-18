@@ -376,7 +376,7 @@ function MonthTable({
               <th className="border border-zinc-200 px-2 py-1 text-right font-medium text-zinc-600 dark:border-zinc-800 dark:text-zinc-300">
                 adjRW
               </th>
-              <th className="border border-zinc-200 px-2 py-1 text-right font-medium text-zinc-600 dark:border-zinc-800 dark:text-zinc-300">
+              <th className="border border-zinc-200 px-2 py-1 text-right font-semibold text-zinc-700 dark:border-zinc-800 dark:text-zinc-100">
                 CMI
               </th>
             </React.Fragment>
@@ -460,7 +460,7 @@ function YearTable({
               <th className="border border-zinc-200 px-2 py-1 text-right font-medium text-zinc-600 dark:border-zinc-800 dark:text-zinc-300">
                 adjRW
               </th>
-              <th className="border border-zinc-200 px-2 py-1 text-right font-medium text-zinc-600 dark:border-zinc-800 dark:text-zinc-300">
+              <th className="border border-zinc-200 px-2 py-1 text-right font-semibold text-zinc-700 dark:border-zinc-800 dark:text-zinc-100">
                 CMI
               </th>
             </React.Fragment>
