@@ -54,16 +54,6 @@ const TH_MONTHS = [
   "ธค",
 ] as const;
 
-const SUBCOL_W_CASE = "w-[60px] min-w-[60px]";
-const SUBCOL_W_RW = "w-[84px] min-w-[84px]";
-const SUBCOL_W_CMI = "w-[60px] min-w-[60px]";
-
-function monthShade(monthIndex: number) {
-  return monthIndex % 2 === 0
-    ? "bg-zinc-50 dark:bg-zinc-900"
-    : "bg-white dark:bg-zinc-950";
-}
-
 function fmtNumber(n: number, digits = 2) {
   return new Intl.NumberFormat("th-TH", {
     minimumFractionDigits: digits,
@@ -309,169 +299,9 @@ export default async function Page({
 
         <div className="overflow-auto bg-white dark:bg-zinc-950">
           {view === "year" ? (
-            <table className="min-w-[1200px] w-full border-collapse text-xs">
-              <colgroup>
-                <col style={{ width: 72 }} />
-                <col style={{ width: 260 }} />
-                {yearsAsc.map((_, i) => (
-                  <React.Fragment key={i}>
-                    <col style={{ width: 60 }} />
-                    <col style={{ width: 84 }} />
-                    <col style={{ width: 60 }} />
-                  </React.Fragment>
-                ))}
-              </colgroup>
-
-              <thead className="bg-white dark:bg-zinc-950">
-                <tr>
-                  <Th className="sticky left-0 z-20 w-[72px] bg-white shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
-                    ลำดับ
-                  </Th>
-                  <Th className="sticky left-[72px] z-20 w-[260px] bg-white shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
-                    ชื่อ รพ.
-                  </Th>
-
-                  {yearsAsc.map((yy, yearIndex) => (
-                    <Th
-                      key={yy}
-                      className={`whitespace-nowrap border-l border-zinc-200 p-0 text-center dark:border-zinc-800 ${monthShade(yearIndex)}`}
-                      colSpan={3}
-                    >
-                      <div className="px-3 py-2 text-center">{yy}</div>
-                    </Th>
-                  ))}
-                </tr>
-
-                <tr>
-                  <Th className="sticky left-0 z-20 bg-white dark:bg-zinc-950" />
-                  <Th className="sticky left-[72px] z-20 bg-white dark:bg-zinc-950" />
-                  {yearsAsc.map((yy, yearIndex) => (
-                    <MonthCols key={yy} monthIndex={yearIndex} />
-                  ))}
-                </tr>
-              </thead>
-
-              <tbody>
-                {hosListYearSorted.map((h, idx) => {
-                  const byYear = yearMap.get(h.hoscode);
-                  return (
-                    <tr key={h.hoscode}>
-                      <Td className="sticky left-0 z-10 bg-white text-right tabular-nums shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
-                        {idx + 1}
-                      </Td>
-                      <Td className="sticky left-[72px] z-10 bg-white shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
-                        <span
-                          className="block max-w-[260px] overflow-hidden text-ellipsis whitespace-nowrap"
-                          title={h.hosname}
-                        >
-                          {shortHosName(h.hosname)}
-                        </span>
-                      </Td>
-
-                      {yearsAsc.map((yy, yearIndex) => {
-                        const r = byYear?.get(yy);
-                        const bg = monthShade(yearIndex);
-                        return (
-                          <React.Fragment key={`${h.hoscode}-${yy}`}>
-                            <Td
-                              className={`border-l border-zinc-200 text-right tabular-nums dark:border-zinc-800 ${bg} ${SUBCOL_W_CASE}`}
-                            >
-                              {r ? fmtNumber(r.cases, 0) : "-"}
-                            </Td>
-                            <Td className={`text-right tabular-nums ${bg} ${SUBCOL_W_RW}`}>
-                              {r ? fmtNumber(r.sum_adjrw, 4) : "-"}
-                            </Td>
-                            <Td className={`text-right tabular-nums ${bg} ${SUBCOL_W_CMI}`}>
-                              {r?.cmi != null ? fmtNumber(r.cmi, 4) : "-"}
-                            </Td>
-                          </React.Fragment>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <YearTable years={yearsAsc} hosList={hosListYearSorted} yearMap={yearMap} />
           ) : (
-            <table className="min-w-[1500px] w-full border-collapse text-xs">
-              <colgroup>
-                <col style={{ width: 72 }} />
-                <col style={{ width: 260 }} />
-                {TH_MONTHS.map((_, i) => (
-                  <React.Fragment key={i}>
-                    <col style={{ width: 60 }} />
-                    <col style={{ width: 84 }} />
-                    <col style={{ width: 60 }} />
-                  </React.Fragment>
-                ))}
-              </colgroup>
-
-              <thead className="bg-white dark:bg-zinc-950">
-                <tr>
-                  <Th className="sticky left-0 z-20 w-[72px] bg-white shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
-                    ลำดับ
-                  </Th>
-                  <Th className="sticky left-[72px] z-20 w-[260px] bg-white shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
-                    ชื่อ รพ.
-                  </Th>
-                  {TH_MONTHS.map((mm, monthIndex) => (
-                    <Th
-                      key={mm}
-                      className={`whitespace-nowrap border-l border-zinc-200 p-0 text-center dark:border-zinc-800 ${monthShade(monthIndex)}`}
-                      colSpan={3}
-                    >
-                      <div className="px-3 py-2 text-center">
-                        {mm}
-                      </div>
-                    </Th>
-                  ))}
-                </tr>
-                <tr>
-                  <Th className="sticky left-0 z-20 bg-white dark:bg-zinc-950" />
-                  <Th className="sticky left-[72px] z-20 bg-white dark:bg-zinc-950" />
-                  {TH_MONTHS.map((mm, monthIndex) => (
-                    <MonthCols key={mm} monthIndex={monthIndex} />
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {hosListSorted.map((h, idx) => {
-                  const byMonth = monthMap.get(h.hoscode);
-                  return (
-                    <tr key={h.hoscode}>
-                      <Td className="sticky left-0 z-10 bg-white text-right tabular-nums shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
-                        {idx + 1}
-                      </Td>
-                      <Td className="sticky left-[72px] z-10 bg-white shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
-                        <span className="block max-w-[260px] overflow-hidden text-ellipsis whitespace-nowrap" title={h.hosname}>
-                          {shortHosName(h.hosname)}
-                        </span>
-                      </Td>
-                      {TH_MONTHS.map((_, monthIndex) => {
-                        const m = monthIndex + 1;
-                        const r = byMonth?.get(m);
-                        const bg = monthShade(monthIndex);
-                        return (
-                          <React.Fragment key={`${h.hoscode}-${m}`}>
-                            <Td
-                              className={`border-l border-zinc-200 text-right tabular-nums dark:border-zinc-800 ${bg} ${SUBCOL_W_CASE}`}
-                            >
-                              {r ? fmtNumber(r.cases, 0) : "-"}
-                            </Td>
-                            <Td className={`text-right tabular-nums ${bg} ${SUBCOL_W_RW}`}>
-                              {r ? fmtNumber(r.sum_adjrw, 4) : "-"}
-                            </Td>
-                            <Td className={`text-right tabular-nums ${bg} ${SUBCOL_W_CMI}`}>
-                              {r?.cmi != null ? fmtNumber(r.cmi, 4) : "-"}
-                            </Td>
-                          </React.Fragment>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            <MonthTable hosList={hosListSorted} monthMap={monthMap} />
           )}
         </div>
       </div>
@@ -507,39 +337,171 @@ function toInt(v: string | undefined) {
   return Number.isFinite(n) ? n : undefined;
 }
 
-function MonthCols({ monthIndex }: { monthIndex: number }) {
-  const bg = monthShade(monthIndex);
+function MonthTable({
+  hosList,
+  monthMap,
+}: {
+  hosList: HosRow[];
+  monthMap: Map<string, Map<number, DrgsSumRow>>;
+}) {
   return (
-    <React.Fragment>
-      <Th
-        className={`border-l border-zinc-200/70 text-right dark:border-white/10 ${bg} ${SUBCOL_W_CASE}`}
-      >
-        Case
-      </Th>
-      <Th className={`text-right ${bg} ${SUBCOL_W_RW}`}>adjRW</Th>
-      <Th className={`text-right ${bg} ${SUBCOL_W_CMI}`}>CMI</Th>
-    </React.Fragment>
+    <table className="min-w-[1500px] w-full border border-zinc-200 text-xs text-zinc-800 dark:border-zinc-800 dark:text-zinc-100">
+      <thead className="bg-zinc-50 text-[11px] uppercase tracking-wide text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
+        <tr>
+          <th rowSpan={2} className="w-16 border border-zinc-200 px-3 py-2 text-right font-semibold dark:border-zinc-800">
+            ลำดับ
+          </th>
+          <th rowSpan={2} className="w-64 border border-zinc-200 px-3 py-2 text-left font-semibold dark:border-zinc-800">
+            ชื่อ รพ.
+          </th>
+          {TH_MONTHS.map((label) => (
+            <th
+              key={label}
+              colSpan={3}
+              className="border border-zinc-200 px-3 py-2 text-center font-semibold dark:border-zinc-800"
+            >
+              {label}
+            </th>
+          ))}
+        </tr>
+        <tr>
+          {TH_MONTHS.map((label) => (
+            <React.Fragment key={`${label}-meta`}>
+              <th className="border border-zinc-200 px-2 py-1 text-right font-medium text-zinc-600 dark:border-zinc-800 dark:text-zinc-300">
+                Case
+              </th>
+              <th className="border border-zinc-200 px-2 py-1 text-right font-medium text-zinc-600 dark:border-zinc-800 dark:text-zinc-300">
+                adjRW
+              </th>
+              <th className="border border-zinc-200 px-2 py-1 text-right font-medium text-zinc-600 dark:border-zinc-800 dark:text-zinc-300">
+                CMI
+              </th>
+            </React.Fragment>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {hosList.map((h, idx) => {
+          const byMonth = monthMap.get(h.hoscode);
+          return (
+            <tr
+              key={h.hoscode}
+              className="odd:bg-white even:bg-zinc-50/60 dark:odd:bg-zinc-950 dark:even:bg-zinc-900"
+            >
+              <td className="border border-zinc-200 px-3 py-2 text-right tabular-nums font-semibold dark:border-zinc-800">
+                {idx + 1}
+              </td>
+              <td className="border border-zinc-200 px-3 py-2 font-medium dark:border-zinc-800">
+                <span className="block max-w-[240px] truncate" title={h.hosname}>
+                  {shortHosName(h.hosname)}
+                </span>
+              </td>
+              {TH_MONTHS.map((_, monthIndex) => {
+                const m = monthIndex + 1;
+                const r = byMonth?.get(m);
+                return (
+                  <React.Fragment key={`${h.hoscode}-${m}`}>
+                    <td className="border border-zinc-200 px-2 py-2 text-right tabular-nums dark:border-zinc-800">
+                      {r ? fmtNumber(r.cases, 0) : "-"}
+                    </td>
+                    <td className="border border-zinc-200 px-2 py-2 text-right tabular-nums dark:border-zinc-800">
+                      {r ? fmtNumber(r.sum_adjrw, 4) : "-"}
+                    </td>
+                    <td className="border border-zinc-200 px-2 py-2 text-right tabular-nums dark:border-zinc-800">
+                      {r?.cmi != null ? fmtNumber(r.cmi, 4) : "-"}
+                    </td>
+                  </React.Fragment>
+                );
+              })}
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
   );
 }
 
-function Th({ className, children, ...props }: React.ThHTMLAttributes<HTMLTableCellElement>) {
+function YearTable({
+  years,
+  hosList,
+  yearMap,
+}: {
+  years: number[];
+  hosList: HosRow[];
+  yearMap: Map<string, Map<number, YearPivotRow>>;
+}) {
   return (
-    <th
-      className={`border-b border-zinc-200/70 px-3 py-2 text-left text-xs font-semibold text-zinc-600 dark:border-white/10 dark:text-zinc-300 ${className ?? ""}`}
-      {...props}
-    >
-      {children}
-    </th>
-  );
-}
-
-function Td({ className, children, ...props }: React.TdHTMLAttributes<HTMLTableCellElement>) {
-  return (
-    <td
-      className={`border-b border-zinc-200/70 px-3 py-2 text-zinc-800 dark:border-white/10 dark:text-zinc-100 ${className ?? ""}`}
-      {...props}
-    >
-      {children}
-    </td>
+    <table className="min-w-[1200px] w-full border border-zinc-200 text-xs text-zinc-800 dark:border-zinc-800 dark:text-zinc-100">
+      <thead className="bg-zinc-50 text-[11px] uppercase tracking-wide text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
+        <tr>
+          <th rowSpan={2} className="w-16 border border-zinc-200 px-3 py-2 text-right font-semibold dark:border-zinc-800">
+            ลำดับ
+          </th>
+          <th rowSpan={2} className="w-64 border border-zinc-200 px-3 py-2 text-left font-semibold dark:border-zinc-800">
+            ชื่อ รพ.
+          </th>
+          {years.map((yy) => (
+            <th
+              key={yy}
+              colSpan={3}
+              className="border border-zinc-200 px-3 py-2 text-center font-semibold dark:border-zinc-800"
+            >
+              {yy}
+            </th>
+          ))}
+        </tr>
+        <tr>
+          {years.map((yy) => (
+            <React.Fragment key={`${yy}-meta`}>
+              <th className="border border-zinc-200 px-2 py-1 text-right font-medium text-zinc-600 dark:border-zinc-800 dark:text-zinc-300">
+                Case
+              </th>
+              <th className="border border-zinc-200 px-2 py-1 text-right font-medium text-zinc-600 dark:border-zinc-800 dark:text-zinc-300">
+                adjRW
+              </th>
+              <th className="border border-zinc-200 px-2 py-1 text-right font-medium text-zinc-600 dark:border-zinc-800 dark:text-zinc-300">
+                CMI
+              </th>
+            </React.Fragment>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {hosList.map((h, idx) => {
+          const byYear = yearMap.get(h.hoscode);
+          return (
+            <tr
+              key={h.hoscode}
+              className="odd:bg-white even:bg-zinc-50/60 dark:odd:bg-zinc-950 dark:even:bg-zinc-900"
+            >
+              <td className="border border-zinc-200 px-3 py-2 text-right tabular-nums font-semibold dark:border-zinc-800">
+                {idx + 1}
+              </td>
+              <td className="border border-zinc-200 px-3 py-2 font-medium dark:border-zinc-800">
+                <span className="block max-w-[240px] truncate" title={h.hosname}>
+                  {shortHosName(h.hosname)}
+                </span>
+              </td>
+              {years.map((yy) => {
+                const r = byYear?.get(yy);
+                return (
+                  <React.Fragment key={`${h.hoscode}-${yy}`}>
+                    <td className="border border-zinc-200 px-2 py-2 text-right tabular-nums dark:border-zinc-800">
+                      {r ? fmtNumber(r.cases, 0) : "-"}
+                    </td>
+                    <td className="border border-zinc-200 px-2 py-2 text-right tabular-nums dark:border-zinc-800">
+                      {r ? fmtNumber(r.sum_adjrw, 4) : "-"}
+                    </td>
+                    <td className="border border-zinc-200 px-2 py-2 text-right tabular-nums dark:border-zinc-800">
+                      {r?.cmi != null ? fmtNumber(r.cmi, 4) : "-"}
+                    </td>
+                  </React.Fragment>
+                );
+              })}
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
   );
 }
