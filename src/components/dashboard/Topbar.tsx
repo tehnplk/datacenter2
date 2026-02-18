@@ -111,7 +111,7 @@ export default function Topbar({ onOpenMobileNav }: TopbarProps) {
 
         <div className="min-w-0">
           <div className="truncate text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
-            Dashboard ข้อมูลสุขภาพ
+            One Province One Hospital
           </div>
           <div className="truncate text-xs text-zinc-500 dark:text-zinc-400">
             สำนักงานสาธารณสุขจังหวัดพิษณุโลก

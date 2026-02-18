@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Dashboard ข้อมูลสุขภาพ - สสจ.พิษณุโลก",
+  title: "OPOH-Dashboard",
   description: "ระบบ Dashboard ข้อมูลทางการแพทย์และสุขภาพ สำนักงานสาธารณสุขจังหวัดพิษณุโลก",
 };
 
