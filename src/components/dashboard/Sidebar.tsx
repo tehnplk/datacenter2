@@ -35,16 +35,26 @@ export default function Sidebar({
   });
 
   React.useEffect(() => {
-    setOpenGroups((prev) => {
-      const next = { ...prev };
+    setOpenGroups(() => {
+      const next: Record<string, boolean> = {};
       for (const g of DASHBOARD_NAV) {
-        if (g.items.some((it) => isActivePath(pathname, it.href))) next[g.id] = true;
+        next[g.id] = g.items.some((it) => isActivePath(pathname, it.href));
       }
       return next;
     });
   }, [pathname]);
 
   const computedWidth = collapsed ? 72 : Math.min(480, Math.max(220, width));
+
+  const selectExclusiveGroup = React.useCallback((groupId: string) => {
+    setOpenGroups(() => {
+      const next: Record<string, boolean> = {};
+      for (const g of DASHBOARD_NAV) {
+        next[g.id] = g.id === groupId;
+      }
+      return next;
+    });
+  }, []);
 
   return (
     <aside
@@ -96,6 +106,7 @@ export default function Sidebar({
                 }
                 pathname={pathname}
                 onNavigate={onNavigate}
+                onSelectExclusive={selectExclusiveGroup}
               />
             </li>
           ))}
@@ -112,6 +123,7 @@ function Group({
   onToggle,
   pathname,
   onNavigate,
+  onSelectExclusive,
 }: {
   group: NavGroup;
   collapsed: boolean;
@@ -119,6 +131,7 @@ function Group({
   onToggle: () => void;
   pathname: string;
   onNavigate?: () => void;
+  onSelectExclusive: (groupId: string) => void;
 }) {
   return (
     <div className="rounded-2xl border border-transparent bg-transparent">
@@ -170,10 +183,13 @@ function Group({
                   <li key={item.id}>
                     <Link
                       href={item.href}
-                      onClick={onNavigate}
+                      onClick={() => {
+                        onSelectExclusive(group.id);
+                        onNavigate?.();
+                      }}
                       className={`flex items-center gap-2 rounded-xl px-3 py-2 text-[12px] leading-5 transition-colors ${
                         active
-                          ? "bg-zinc-200 text-zinc-900 dark:bg-white/15 dark:text-zinc-50"
+                          ? "bg-zinc-200 text-zinc-900 dark:bg-white/15 dark:text-zinc-950"
                           : "text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-white/5"
                       }`}
                       aria-current={active ? "page" : undefined}
