@@ -58,13 +58,13 @@ export default function Sidebar({
 
   return (
     <aside
-      className="h-full shrink-0 border-r border-zinc-200/70 bg-white transition-[width] duration-300 ease-in-out dark:border-white/10 dark:bg-zinc-950"
+      className="h-full shrink-0 border-r border-green-200 bg-white transition-[width] duration-300 ease-in-out dark:border-green-800 dark:bg-green-950"
       style={{ width: computedWidth }}
       aria-label="เมนูด้านซ้าย"
     >
-      <div className="flex h-14 items-center gap-2 border-b border-zinc-200/70 px-3 dark:border-white/10">
+      <div className="flex h-14 items-center gap-2 border-b border-green-200 px-3 dark:border-green-800">
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-zinc-900 text-white dark:bg-white dark:text-zinc-950">
+          <div className="grid h-9 w-9 place-items-center rounded-xl bg-green-700 text-white dark:bg-green-400 dark:text-green-950">
             <span className="text-[11px] font-bold">PLK</span>
           </div>
           <div
@@ -74,10 +74,10 @@ export default function Sidebar({
                 : "max-w-[220px] translate-x-0 opacity-100"
             }`}
           >
-            <div className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+            <div className="truncate text-sm font-semibold text-green-900 dark:text-green-50">
               OPOH
             </div>
-            <div className="truncate text-xs text-zinc-500 dark:text-zinc-400">
+            <div className="truncate text-xs text-green-600 dark:text-green-400">
               v0.1
             </div>
           </div>
@@ -86,7 +86,7 @@ export default function Sidebar({
         <button
           type="button"
           onClick={onToggleCollapsed}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200/70 bg-white text-zinc-900 shadow-sm hover:bg-zinc-50 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-50 dark:hover:bg-white/5"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-green-200 bg-white text-green-800 shadow-sm hover:bg-green-50 dark:border-green-700 dark:bg-green-900 dark:text-green-100 dark:hover:bg-green-800"
           aria-label={collapsed ? "ขยายเมนู" : "ย่อเมนู"}
         >
           {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
@@ -138,7 +138,7 @@ function Group({
       <button
         type="button"
         onClick={onToggle}
-        className={`flex w-full items-center gap-2 rounded-2xl px-2.5 py-2 text-left text-sm font-medium text-zinc-800 hover:bg-zinc-50 dark:text-zinc-100 dark:hover:bg-white/5 ${
+        className={`flex w-full items-center gap-2 rounded-2xl px-2.5 py-2 text-left text-sm font-medium text-green-900 hover:bg-green-100 dark:text-green-100 dark:hover:bg-green-800/50 ${
           collapsed ? "justify-center" : "justify-between"
         }`}
         aria-expanded={open}
@@ -147,7 +147,7 @@ function Group({
           className={`inline-flex items-center gap-2 ${collapsed ? "justify-center" : ""}`}
           title={collapsed ? group.label : undefined}
         >
-          <span className="grid h-8 w-8 place-items-center rounded-xl bg-zinc-100 text-zinc-900 dark:bg-white/10 dark:text-zinc-50">
+          <span className="grid h-8 w-8 place-items-center rounded-xl bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">
             {group.icon}
           </span>
           <span
@@ -162,7 +162,7 @@ function Group({
         </span>
 
         {!collapsed ? (
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-xl text-zinc-500 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-white/10">
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-xl text-green-600 hover:bg-green-100 dark:text-green-400 dark:hover:bg-green-800">
             {open ? <Minus className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
           </span>
         ) : null}
@@ -175,7 +175,7 @@ function Group({
         aria-hidden={!open}
       >
         <div className="overflow-hidden">
-          <div className="mt-1 border-l border-zinc-200/70 pl-[5px] dark:border-white/10">
+          <div className="mt-1 border-l border-green-200 pl-[5px] dark:border-green-700">
             <ul className="space-y-1">
               {group.items.map((item) => {
                 const active = isActivePath(pathname, item.href);
@@ -189,8 +189,8 @@ function Group({
                       }}
                       className={`flex items-center gap-2 rounded-xl px-3 py-2 text-[12px] leading-5 transition-colors ${
                         active
-                          ? "bg-zinc-200 text-zinc-900 dark:bg-white/15 dark:text-zinc-950"
-                          : "text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-white/5"
+                          ? "bg-green-200 text-green-900 dark:bg-green-700 dark:text-green-50"
+                          : "text-green-800 hover:bg-green-100 dark:text-green-200 dark:hover:bg-green-800/50"
                       }`}
                       aria-current={active ? "page" : undefined}
                       tabIndex={open ? 0 : -1}
@@ -199,8 +199,8 @@ function Group({
                         aria-hidden="true"
                         className={`h-1.5 w-1.5 shrink-0 rounded-full ${
                           active
-                            ? "bg-zinc-600 dark:bg-white"
-                            : "bg-zinc-300 dark:bg-white/25"
+                            ? "bg-green-700 dark:bg-green-300"
+                            : "bg-green-300 dark:bg-green-600"
                         }`}
                       />
                       <span className="min-w-0 truncate">{item.label}</span>

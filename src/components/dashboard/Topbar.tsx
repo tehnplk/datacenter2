@@ -98,22 +98,22 @@ export default function Topbar({ onOpenMobileNav }: TopbarProps) {
   }, [isOpen]);
 
   return (
-    <div className="border-b border-zinc-200/70 bg-white/80 backdrop-blur dark:border-white/10 dark:bg-zinc-950/70">
+    <div className="border-b border-green-200 bg-white/90 backdrop-blur dark:border-green-800 dark:bg-green-950/80">
       <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
         <button
           type="button"
           onClick={onOpenMobileNav}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-zinc-200/70 bg-white text-zinc-900 shadow-sm hover:bg-zinc-50 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-50 dark:hover:bg-white/5 md:hidden"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-green-200 bg-white text-green-900 shadow-sm hover:bg-green-50 dark:border-green-700 dark:bg-green-900 dark:text-green-100 dark:hover:bg-green-800 md:hidden"
           aria-label="เปิดเมนู"
         >
           <Menu className="h-5 w-5" />
         </button>
 
         <div className="min-w-0">
-          <div className="truncate text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+          <div className="truncate text-sm font-semibold tracking-tight text-green-900 dark:text-green-50">
             One Province One Hospital
           </div>
-          <div className="truncate text-xs text-zinc-500 dark:text-zinc-400">
+          <div className="truncate text-xs text-green-600 dark:text-green-400">
             สำนักงานสาธารณสุขจังหวัดพิษณุโลก
           </div>
         </div>
@@ -122,7 +122,7 @@ export default function Topbar({ onOpenMobileNav }: TopbarProps) {
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className="hidden items-center gap-2 rounded-full border border-zinc-200/70 bg-white px-2.5 py-1 text-[11px] font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:bg-white/10 sm:inline-flex"
+            className="hidden items-center gap-2 rounded-full border border-green-200 bg-white px-2.5 py-1 text-[11px] font-medium text-green-700 shadow-sm transition hover:bg-green-50 dark:border-green-700 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800 sm:inline-flex"
           >
             <Search className="h-3.5 w-3.5" />
             Connection
@@ -139,16 +139,16 @@ export default function Topbar({ onOpenMobileNav }: TopbarProps) {
                 aria-label="ปิดหน้าต่าง"
                 onClick={() => setIsOpen(false)}
               />
-              <div className="relative z-10 w-full max-w-3xl overflow-hidden rounded-2xl border border-zinc-200/70 bg-white shadow-2xl dark:border-white/10 dark:bg-zinc-950">
+              <div className="relative z-10 w-full max-w-3xl overflow-hidden rounded-2xl border border-green-200 bg-white shadow-2xl dark:border-green-700 dark:bg-green-950">
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="absolute right-4 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-white/10"
+                  className="absolute right-4 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full text-green-600 transition hover:bg-green-100 hover:text-green-800 dark:text-green-400 dark:hover:bg-green-800"
                   aria-label="ปิดหน้าต่าง"
                 >
                   <X className="h-4 w-4" />
                 </button>
-                <div className="flex items-center justify-between border-b border-zinc-200/70 px-5 py-4 pr-14 text-sm font-semibold text-zinc-900 dark:border-white/10 dark:text-zinc-50">
+                <div className="flex items-center justify-between border-b border-green-200 px-5 py-4 pr-14 text-sm font-semibold text-green-900 dark:border-green-700 dark:text-green-50">
                   สถานะการเชื่อมต่อ
                 </div>
                 <div className="max-h-[70vh] overflow-auto px-5 py-4 text-xs">
@@ -158,7 +158,7 @@ export default function Topbar({ onOpenMobileNav }: TopbarProps) {
                     <div className="py-6 text-center text-rose-600">{error}</div>
                   ) : (
                     <table className="w-full min-w-[640px] border-separate border-spacing-0">
-                      <thead className="bg-white/90 text-[11px] uppercase text-zinc-400 backdrop-blur dark:bg-zinc-950/90">
+                      <thead className="bg-white/90 text-[11px] uppercase text-green-500 backdrop-blur dark:bg-green-950/90">
                         <tr>
                           <th className="px-3 py-2 text-left">Hos</th>
                           <th className="px-3 py-2 text-left">Sync Version</th>
@@ -176,13 +176,13 @@ export default function Topbar({ onOpenMobileNav }: TopbarProps) {
                           return (
                             <tr
                               key={`${row.hos ?? "-"}-${idx}`}
-                              className="border-b border-zinc-100 text-zinc-700 dark:border-white/5 dark:text-zinc-200"
+                              className="border-b border-green-100 text-green-800 dark:border-green-800 dark:text-green-200"
                             >
-                              <td className="px-3 py-2 font-medium text-zinc-900 dark:text-zinc-50">
+                              <td className="px-3 py-2 font-medium text-green-900 dark:text-green-50">
                                 <div className="flex flex-col">
                                   <span>{row.hos ?? "-"}</span>
                                   {row.hosname ? (
-                                    <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">
+                                    <span className="text-xs font-normal text-green-600 dark:text-green-400">
                                       {shortHosName(row.hosname)}
                                     </span>
                                   ) : null}
@@ -205,7 +205,7 @@ export default function Topbar({ onOpenMobileNav }: TopbarProps) {
                         })}
                         {rows.length === 0 ? (
                           <tr>
-                            <td className="px-3 py-6 text-center text-zinc-500" colSpan={4}>
+                            <td className="px-3 py-6 text-center text-green-600" colSpan={4}>
                               ไม่พบข้อมูลการเชื่อมต่อ
                             </td>
                           </tr>
