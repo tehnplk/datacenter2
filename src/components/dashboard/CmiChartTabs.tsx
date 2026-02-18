@@ -77,7 +77,7 @@ export default function CmiChartTabs({
               key={tab.key}
               type="button"
               onClick={() => setActive(tab.key)}
-              className={`rounded-full px-3 py-1 transition ${
+              className={`cursor-pointer rounded-full px-3 py-1 transition ${
                 active === tab.key
                   ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-900 dark:text-zinc-100"
                   : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-300"

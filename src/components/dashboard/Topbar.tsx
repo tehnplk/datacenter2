@@ -103,7 +103,7 @@ export default function Topbar({ onOpenMobileNav }: TopbarProps) {
         <button
           type="button"
           onClick={onOpenMobileNav}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-green-200 bg-white text-green-900 shadow-sm hover:bg-green-50 dark:border-green-700 dark:bg-green-900 dark:text-green-100 dark:hover:bg-green-800 md:hidden"
+          className="cursor-pointer inline-flex h-9 w-9 items-center justify-center rounded-xl border border-green-200 bg-white text-green-900 shadow-sm hover:bg-green-50 dark:border-green-700 dark:bg-green-900 dark:text-green-100 dark:hover:bg-green-800 md:hidden"
           aria-label="เปิดเมนู"
         >
           <Menu className="h-5 w-5" />
@@ -122,7 +122,7 @@ export default function Topbar({ onOpenMobileNav }: TopbarProps) {
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className="hidden items-center gap-2 rounded-full border border-green-200 bg-white px-2.5 py-1 text-[11px] font-medium text-green-700 shadow-sm transition hover:bg-green-50 dark:border-green-700 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800 sm:inline-flex"
+            className="cursor-pointer hidden items-center gap-2 rounded-full border border-green-200 bg-white px-2.5 py-1 text-[11px] font-medium text-green-700 shadow-sm transition hover:bg-green-50 dark:border-green-700 dark:bg-green-900 dark:text-green-200 dark:hover:bg-green-800 sm:inline-flex"
           >
             <Search className="h-3.5 w-3.5" />
             Connection
@@ -143,7 +143,7 @@ export default function Topbar({ onOpenMobileNav }: TopbarProps) {
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="absolute right-4 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full text-green-600 transition hover:bg-green-100 hover:text-green-800 dark:text-green-400 dark:hover:bg-green-800"
+                  className="cursor-pointer absolute right-4 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full text-green-600 transition hover:bg-green-100 hover:text-green-800 dark:text-green-400 dark:hover:bg-green-800"
                   aria-label="ปิดหน้าต่าง"
                 >
                   <X className="h-4 w-4" />

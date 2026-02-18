@@ -48,7 +48,7 @@ export default function HospitalTabs({
                 next.set(paramName, t.value);
                 router.push(`${pathname}?${next.toString()}`);
               }}
-              className={`h-8 whitespace-nowrap rounded-xl px-3 text-[12px] font-semibold transition-colors ${
+              className={`h-8 cursor-pointer whitespace-nowrap rounded-xl px-3 text-[12px] font-semibold transition-colors ${
                 active
                   ? "bg-green-700 text-white dark:bg-green-300 dark:text-green-950"
                   : "text-green-800 hover:bg-green-50 dark:text-green-100 dark:hover:bg-green-800/50"

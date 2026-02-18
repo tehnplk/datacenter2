@@ -99,7 +99,7 @@ export default function CmiMultiLineChart({
                       key={dataKey}
                       type="button"
                       onClick={() => onToggleSeries?.(dataKey)}
-                      className={`inline-flex items-center gap-2 text-xs font-medium transition ${
+                      className={`cursor-pointer inline-flex items-center gap-2 text-xs font-medium transition ${
                         isHidden ? "text-zinc-400" : "text-zinc-700 dark:text-zinc-200"
                       }`}
                     >

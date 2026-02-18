@@ -42,7 +42,7 @@ export default function ViewTabs({
               next.set(paramName, t.value);
               router.push(`${pathname}?${next.toString()}`);
             }}
-            className={`h-8 rounded-xl px-3 text-sm font-medium transition-colors ${
+            className={`h-8 cursor-pointer rounded-xl px-3 text-sm font-medium transition-colors ${
               active
                 ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-950"
                 : "text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-white/5"
