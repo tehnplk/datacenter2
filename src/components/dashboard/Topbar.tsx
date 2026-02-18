@@ -121,7 +121,7 @@ export default function Topbar({ onOpenMobileNav }: TopbarProps) {
         <div className="fixed inset-0 z-50 flex min-h-screen items-center justify-center px-4 py-6">
           <button
             type="button"
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm"
+            className="fixed inset-x-0 bottom-0 top-14 bg-black/80 backdrop-blur-sm"
             aria-label="ปิดหน้าต่าง"
             onClick={() => setIsOpen(false)}
           />
