@@ -175,7 +175,7 @@ function Group({
         aria-hidden={!open}
       >
         <div className="overflow-hidden">
-          <div className="mt-1 border-l border-green-200 pl-[5px] dark:border-green-700">
+          <div className="mt-1 ml-[42px]">
             <ul className="space-y-1">
               {group.items.map((item) => {
                 const active = isActivePath(pathname, item.href);

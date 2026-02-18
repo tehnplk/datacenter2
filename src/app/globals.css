@@ -41,3 +41,20 @@ body {
 .dc2-surface {
   background: color-mix(in oklab, var(--background) 92%, var(--foreground) 8%);
 }
+
+/* Page transition */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+main,
+[data-page] {
+  animation: page-enter 0.2s ease-out both;
+}

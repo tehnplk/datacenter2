@@ -68,7 +68,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
         />
         <div className="min-w-0 flex-1">
           <Topbar onOpenMobileNav={() => setMobileOpen(true)} />
-          <main className="min-w-0">{children}</main>
+          <main key={pathname} className="min-w-0">{children}</main>
         </div>
       </div>
 

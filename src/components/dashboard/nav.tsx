@@ -22,14 +22,14 @@ export type NavGroup = {
 export const DASHBOARD_NAV: NavGroup[] = [
   {
     id: "drgs",
-    label: "Drgs",
+    label: "RW/CMI",
     icon: <BarChart3 className="h-4 w-4" />,
     items: [
-      { id: "cmi", label: "AdjRW/CMI", href: "/Drgs/cmi" },
+      { id: "cmi", label: "RW/CMI", href: "/RW-CMI/rw-cmi" },
       {
         id: "top-adjrw",
         label: "TOP 10 AdjRW",
-        href: "/Drgs/top-adjrw",
+        href: "/RW-CMI/top-adjrw",
       },
     ],
   },
