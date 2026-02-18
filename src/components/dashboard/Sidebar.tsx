@@ -86,7 +86,7 @@ export default function Sidebar({
         <button
           type="button"
           onClick={onToggleCollapsed}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-green-200 bg-white text-green-800 shadow-sm hover:bg-green-50 dark:border-green-700 dark:bg-green-900 dark:text-green-100 dark:hover:bg-green-800"
+          className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl border border-green-200 bg-white text-green-800 shadow-sm hover:bg-green-50 dark:border-green-700 dark:bg-green-900 dark:text-green-100 dark:hover:bg-green-800"
           aria-label={collapsed ? "ขยายเมนู" : "ย่อเมนู"}
         >
           {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
@@ -138,7 +138,7 @@ function Group({
       <button
         type="button"
         onClick={onToggle}
-        className={`flex w-full items-center gap-2 rounded-2xl px-2.5 py-2 text-left text-sm font-medium text-green-900 hover:bg-green-100 dark:text-green-100 dark:hover:bg-green-800/50 ${
+        className={`flex w-full cursor-pointer items-center gap-2 rounded-2xl px-2.5 py-2 text-left text-sm font-medium text-green-900 hover:bg-green-100 dark:text-green-100 dark:hover:bg-green-800/50 ${
           collapsed ? "justify-center" : "justify-between"
         }`}
         aria-expanded={open}

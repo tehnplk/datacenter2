@@ -288,9 +288,6 @@ export default async function Page({
             ]}
           />
           {view === "month" ? <YearSelect years={years} value={selectedYear} /> : null}
-          <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:ring-emerald-500/30">
-            Connected
-          </span>
       </div>
 
       <div className="mt-4 overflow-hidden rounded-xl ring-1 ring-zinc-200 dark:ring-zinc-800">

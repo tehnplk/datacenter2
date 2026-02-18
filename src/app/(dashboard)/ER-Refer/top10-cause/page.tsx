@@ -1,7 +1,7 @@
-import * as React from "react";
 import MetricPage from "@/components/dashboard/MetricPage";
-import HosSelect, { type HosItem } from "@/components/dashboard/HosSelect";
+import HospitalTabs, { type HospitalTabItem } from "@/components/dashboard/HospitalTabs";
 import { dbQuery } from "@/lib/db";
+import * as React from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +13,17 @@ type Top10Row = {
   total_refer: number;
 };
 
-function shortHosName(name: string) {
+type TopHosRow = {
+  hoscode: string;
+  hosname: string | null;
+  hosname_short: string | null;
+  total_refer: number;
+};
+
+function displayHosName(name?: string | null, shortName?: string | null) {
+  const candidate = shortName?.trim();
+  if (candidate) return candidate;
+  if (!name) return "-";
   const raw = name.trim();
   if (raw.includes("สมเด็จพระยุพราชนครไทย")) return "รพร.นครไทย";
   if (raw.includes("พุทธชินราช")) return "รพศ.พุทธชินราช";
@@ -26,63 +36,71 @@ export default async function Page({
   searchParams?: { hos?: string } | Promise<{ hos?: string }>;
 }) {
   const sp = await Promise.resolve(searchParams ?? {});
+  const selectedHosParam = sp.hos?.trim() || undefined;
 
-  const selectedHos = sp.hos?.trim() || undefined;
-  const where: string[] = [];
-  const params: Array<string | number> = [];
-  if (selectedHos) {
-    params.push(selectedHos);
-    where.push(`s.hoscode = $${params.length}`);
-  }
-  const whereSql = where.length ? `where ${where.join(" and ")}` : "";
-
-  const [hosList, rows, meta] = await Promise.all([
-    dbQuery<HosItem>(
-      `select hoscode, hosname from public.c_hos order by hosname asc;`,
-    ),
-    dbQuery<Top10Row>(
+  const [allHospitals, meta] = await Promise.all([
+    dbQuery<TopHosRow>(
       `
       select
-        s.hoscode,
+        h.hoscode,
         h.hosname,
-        s.icd10,
-        s.icd10_name,
-        s.total_refer
-      from public.transform_sync_refer_top10 s
-      left join public.c_hos h on h.hoscode = s.hoscode
-      ${whereSql}
-      order by s.total_refer desc, s.icd10 asc;
+        h.hosname_short,
+        coalesce(sum(s.total_refer), 0)::int as total_refer
+      from public.c_hos h
+      left join public.transform_sync_refer_top10 s on s.hoscode = h.hoscode
+      group by h.hoscode, h.hosname, h.hosname_short
+      order by total_refer desc, h.hosname asc nulls last;
       `,
-      params,
     ),
-    dbQuery<{ row_count: number; last_update: string | null }>(
-      `
-      select
-        (select count(*)::int from public.transform_sync_refer_top10 s ${whereSql}) as row_count,
-        (select max(d_update)::text from public.transform_sync_refer_top10 s ${whereSql}) as last_update;
-      `,
-      params,
+    dbQuery<{ last_update: string | null }>(
+      `select max(d_update)::text as last_update from public.transform_sync_refer_top10;`,
     ).then((r) => r[0]),
   ]);
+
+  const tabs: HospitalTabItem[] = allHospitals.map((h) => ({
+    value: h.hoscode,
+    label: displayHosName(h.hosname, h.hosname_short),
+  }));
+
+  const selectedHos =
+    (selectedHosParam && tabs.some((t) => t.value === selectedHosParam)
+      ? selectedHosParam
+      : tabs[0]?.value) ?? "";
+
+  const rows = selectedHos
+    ? await dbQuery<Top10Row>(
+        `
+        select
+          s.hoscode,
+          h.hosname,
+          s.icd10,
+          s.icd10_name,
+          s.total_refer
+        from public.transform_sync_refer_top10 s
+        left join public.c_hos h on h.hoscode = s.hoscode
+        where s.hoscode = $1
+        order by s.total_refer desc, s.icd10 asc;
+        `,
+        [selectedHos],
+      )
+    : [];
 
   return (
     <MetricPage
       title="Top 10 สาเหตุ Refer (ICD10)"
-      description="สรุป 10 อันดับแรกของรหัสโรค (ICD10) ที่ถูก Refer"
+      description="สรุป 10 อันดับแรกของรหัสโรค (ICD10) ที่ถูก Refer แยกตามโรงพยาบาล"
       showTopCards={false}
       contentWidth="wide"
+      hideHeader
     >
       <div className="flex flex-wrap items-center justify-end gap-3">
-        <HosSelect hospitals={hosList} value={selectedHos} />
-        <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-200 dark:ring-emerald-500/30">
-          Connected
-        </span>
+        <HospitalTabs items={tabs} value={selectedHos} paramName="hos" />
       </div>
 
       <div className="mt-4 overflow-hidden rounded-xl ring-1 ring-zinc-200/70 dark:ring-white/10">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200/70 bg-white px-3 py-2 text-xs text-zinc-500 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-400">
           <div className="whitespace-nowrap">
-            อัปเดตเมื่อ: {meta?.last_update ?? "-"} • แถวทั้งหมด: {meta?.row_count ?? 0}
+            อัปเดตเมื่อ: {meta?.last_update ?? "-"}
           </div>
           <div className="whitespace-nowrap text-right">
             ข้อมูลจากตาราง: <span className="font-mono">transform_sync_refer_top10</span>
@@ -90,32 +108,42 @@ export default async function Page({
         </div>
 
         <div className="overflow-auto bg-white dark:bg-zinc-950">
-          <table className="min-w-[920px] w-full border-separate border-spacing-0 text-xs">
-            <thead className="sticky top-0 z-10 bg-white/90 backdrop-blur dark:bg-zinc-950/90">
-              <tr>
-                <Th className="sticky left-0 z-20 w-[72px] bg-white/95 dark:bg-zinc-950/95">ลำดับ</Th>
-                <Th className="sticky left-[72px] z-20 w-[260px] bg-white/95 dark:bg-zinc-950/95">ชื่อ รพ.</Th>
-                <Th className="w-[100px]">ICD10</Th>
-                <Th>รายละเอียดโรค</Th>
-                <Th className="w-[140px] text-right">จำนวน Refer</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r, idx) => (
-                <tr key={`${r.hoscode}-${r.icd10}-${idx}`}>
-                  <Td className="sticky left-0 z-10 bg-white/95 text-right tabular-nums dark:bg-zinc-950/95">
-                    {idx + 1}
-                  </Td>
-                  <Td className="sticky left-[72px] z-10 bg-white/95 dark:bg-zinc-950/95">
-                    {r.hosname ? shortHosName(r.hosname) : r.hoscode}
-                  </Td>
-                  <Td className="font-mono">{r.icd10}</Td>
-                  <Td className="min-w-[240px]">{r.icd10_name}</Td>
-                  <Td className="text-right tabular-nums">{r.total_refer}</Td>
+          {tabs.length === 0 ? (
+            <div className="px-4 py-10 text-center text-sm text-zinc-500 dark:text-zinc-400">
+              ไม่พบข้อมูลโรงพยาบาล
+            </div>
+          ) : (
+            <table className="min-w-[640px] w-full border-separate border-spacing-0 text-xs">
+              <thead className="sticky top-0 z-10 bg-white/90 backdrop-blur dark:bg-zinc-950/90">
+                <tr>
+                  <Th className="w-[56px] text-center">ลำดับ</Th>
+                  <Th className="w-[120px]">ICD10</Th>
+                  <Th className="min-w-[320px]">รายละเอียดโรค</Th>
+                  <Th className="w-[140px] text-right font-semibold text-zinc-700 dark:text-zinc-100">จำนวน Refer</Th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {rows.length === 0 ? (
+                  <tr>
+                    <Td className="py-8 text-center text-zinc-500 dark:text-zinc-400" colSpan={4}>
+                      ไม่พบข้อมูล
+                    </Td>
+                  </tr>
+                ) : (
+                  rows.map((r, idx) => (
+                    <tr key={`${r.hoscode}-${r.icd10}-${idx}`}>
+                      <Td className="text-center tabular-nums font-semibold text-zinc-700 dark:text-zinc-200">
+                        {idx + 1}
+                      </Td>
+                      <Td className="font-mono">{r.icd10}</Td>
+                      <Td>{r.icd10_name}</Td>
+                      <Td className="text-right tabular-nums font-semibold">{r.total_refer}</Td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </MetricPage>

@@ -45,7 +45,7 @@ export const DASHBOARD_NAV: NavGroup[] = [
       },
       {
         id: "top10",
-        label: "ประเภท/รหัส/สาเหตุ Refer in/out 10 อันดับ",
+        label: "Refer Out 10 อันดับ",
         href: "/ER-Refer/top10-cause",
       },
     ],
