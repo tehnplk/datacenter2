@@ -51,7 +51,7 @@ export default function MetricPage({
             {title}
           </h1>
           {description ? (
-            <p className="py-[10px] inline-flex items-center gap-1.5 max-w-3xl text-pretty text-sm leading-6 text-green-700 dark:text-green-300">
+            <p className="my-[10px] inline-flex items-center gap-2 rounded-2xl border border-green-200 bg-white px-4 py-2 text-pretty text-sm font-medium text-green-700 shadow-sm dark:border-green-800 dark:bg-white/5 dark:text-green-200">
               <FileText className="h-5 w-5 shrink-0" />
               {description}
             </p>
@@ -60,7 +60,7 @@ export default function MetricPage({
       ) : null}
 
       {hideHeader && description ? (
-        <p className="my-[10px] inline-flex items-center gap-1.5 max-w-3xl text-pretty text-sm leading-6 text-green-700 dark:text-green-300">
+        <p className="my-[10px] inline-flex max-w-3xl items-center gap-2 rounded-2xl border border-green-200 bg-white px-4 py-2 text-pretty text-sm font-medium text-green-700 shadow-sm dark:border-green-800 dark:bg-white/5 dark:text-green-200">
           <FileText className="h-5 w-5 shrink-0" />
           {description}
         </p>
