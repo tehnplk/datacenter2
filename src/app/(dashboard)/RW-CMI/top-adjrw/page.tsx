@@ -108,23 +108,28 @@ export default async function Page({
   const rows = selectedHos
     ? await dbQuery<TopAdjrwRow>(
         `
-        select
-          s.hoscode,
-          h.hosname,
-          s.y,
-          s.m,
-          s.drgs_code,
-          d.drgname::text as drgs_name,
-          s.sum_adj_rw::float8 as sum_adj_rw,
-          row_number() over (
-            partition by s.hoscode, s.y, s.m
-            order by s.sum_adj_rw desc, s.drgs_code asc
-          )::int as rank
-        from public.transform_sync_drgs_rw_top10 s
-        left join public.c_hos h on h.hoscode = s.hoscode
-        left join public.c_drgs_63 d on d.drg = s.drgs_code
-        where s.y = $1 and s.hoscode = $2
-        order by s.m asc, rank asc;
+        with ranked as (
+          select
+            s.hoscode,
+            h.hosname,
+            s.y,
+            s.m,
+            s.drgs_code,
+            d.drgname::text as drgs_name,
+            s.sum_adj_rw::float8 as sum_adj_rw,
+            row_number() over (
+              partition by s.hoscode, s.y, s.m
+              order by s.sum_adj_rw desc, s.drgs_code asc
+            )::int as rank
+          from public.transform_sync_drgs_rw_top10 s
+          left join public.c_hos h on h.hoscode = s.hoscode
+          left join public.c_drgs_63 d on d.drg = s.drgs_code
+          where s.y = $1 and s.hoscode = $2
+        )
+        select *
+        from ranked
+        where rank <= 10
+        order by m asc, rank asc;
         `,
         [selectedYear, selectedHos],
       )
