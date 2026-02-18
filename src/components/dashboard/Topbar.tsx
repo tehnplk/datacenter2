@@ -6,6 +6,7 @@ import { MenuIcon } from "@/components/dashboard/icons";
 
 type ConnectionRow = {
   hos: string | null;
+  hosname: string | null;
   sync_version: string | null;
   connected_at: string | null;
   status: string | null;
@@ -34,6 +35,13 @@ function formatConnectedAt(value: string | null) {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(dt);
+}
+
+function shortHosName(name: string) {
+  const raw = name.trim();
+  if (raw.includes("สมเด็จพระยุพราชนครไทย")) return "รพร.นครไทย";
+  if (raw.includes("พุทธชินราช")) return "รพศ.พุทธชินราช";
+  return raw.replace(/^โรงพยาบาล\s*/u, "รพ.");
 }
 
 type TopbarProps = {
@@ -165,7 +173,14 @@ export default function Topbar({ onOpenMobileNav }: TopbarProps) {
                           className="border-b border-zinc-100 text-zinc-700 dark:border-white/5 dark:text-zinc-200"
                         >
                           <td className="px-3 py-2 font-medium text-zinc-900 dark:text-zinc-50">
-                            {row.hos ?? "-"}
+                            <div className="flex flex-col">
+                              <span>{row.hos ?? "-"}</span>
+                              {row.hosname ? (
+                                <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">
+                                  {shortHosName(row.hosname)}
+                                </span>
+                              ) : null}
+                            </div>
                           </td>
                           <td className="px-3 py-2 font-mono text-[11px]">
                             {row.sync_version ?? "-"}
