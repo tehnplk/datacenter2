@@ -162,36 +162,38 @@ function Group({
         aria-hidden={!open}
       >
         <div className="overflow-hidden">
-          <ul className="mt-1 space-y-1">
-            {group.items.map((item) => {
-              const active = isActivePath(pathname, item.href);
-              return (
-                <li key={item.id}>
-                  <Link
-                    href={item.href}
-                    onClick={onNavigate}
-                    className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm leading-5 transition-colors ${
-                      active
-                        ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-950"
-                        : "text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-white/5"
-                    }`}
-                    aria-current={active ? "page" : undefined}
-                    tabIndex={open ? 0 : -1}
-                  >
-                    <span
-                      aria-hidden="true"
-                      className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+          <div className="mt-1 border-l border-zinc-200/70 pl-[5px] dark:border-white/10">
+            <ul className="space-y-1">
+              {group.items.map((item) => {
+                const active = isActivePath(pathname, item.href);
+                return (
+                  <li key={item.id}>
+                    <Link
+                      href={item.href}
+                      onClick={onNavigate}
+                      className={`flex items-center gap-2 rounded-xl px-3 py-2 text-[12px] leading-5 transition-colors ${
                         active
-                          ? "bg-white dark:bg-zinc-950"
-                          : "bg-zinc-300 dark:bg-white/25"
+                          ? "bg-zinc-200 text-zinc-900 dark:bg-white/15 dark:text-zinc-50"
+                          : "text-zinc-700 hover:bg-zinc-50 dark:text-zinc-200 dark:hover:bg-white/5"
                       }`}
-                    />
-                    <span className="min-w-0 truncate">{item.label}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+                      aria-current={active ? "page" : undefined}
+                      tabIndex={open ? 0 : -1}
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                          active
+                            ? "bg-zinc-600 dark:bg-white"
+                            : "bg-zinc-300 dark:bg-white/25"
+                        }`}
+                      />
+                      <span className="min-w-0 truncate">{item.label}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
         </div>
       </div>
     </div>
