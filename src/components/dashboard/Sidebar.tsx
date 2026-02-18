@@ -65,7 +65,7 @@ export default function Sidebar({
             }`}
           >
             <div className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-              PLK Health
+              OPOH
             </div>
             <div className="truncate text-xs text-zinc-500 dark:text-zinc-400">
               v0.1
