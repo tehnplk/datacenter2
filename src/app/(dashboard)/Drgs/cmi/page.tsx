@@ -290,7 +290,7 @@ export default async function Page({
             ) : (
               <>ปี: {selectedYear}</>
             )}
-            {" "}• อัปเดตเมื่อ: {meta?.last_update ?? "-"} • แถวทั้งหมด: {view === "year" ? (meta?.row_count_all ?? 0) : (meta?.row_count_selected ?? 0)}
+            {" "}• อัปเดตเมื่อ: {meta?.last_update ?? "-"}
           </div>
           <div className="whitespace-nowrap text-right">
             ข้อมูลจากตาราง: <span className="font-mono">transform_sync_drgs_sum</span>
@@ -345,13 +345,16 @@ function MonthTable({
   monthMap: Map<string, Map<number, DrgsSumRow>>;
 }) {
   return (
-    <table className="min-w-[1500px] w-full border border-zinc-200 text-xs text-zinc-800 dark:border-zinc-800 dark:text-zinc-100">
-      <thead className="bg-zinc-50 text-[11px] uppercase tracking-wide text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
+    <table className="min-w-[1500px] w-full border border-zinc-200 text-[10px] text-zinc-800 dark:border-zinc-800 dark:text-zinc-100">
+      <thead className="bg-zinc-50 text-[9px] uppercase tracking-wide text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
         <tr>
           <th rowSpan={2} className="w-16 border border-zinc-200 px-3 py-2 text-right font-semibold dark:border-zinc-800">
             ลำดับ
           </th>
-          <th rowSpan={2} className="w-64 border border-zinc-200 px-3 py-2 text-left font-semibold dark:border-zinc-800">
+          <th
+            rowSpan={2}
+            className="border border-zinc-200 px-3 py-2 text-left font-semibold whitespace-nowrap dark:border-zinc-800"
+          >
             ชื่อ รพ.
           </th>
           {TH_MONTHS.map((label) => (
@@ -391,10 +394,8 @@ function MonthTable({
               <td className="border border-zinc-200 px-3 py-2 text-right tabular-nums font-semibold dark:border-zinc-800">
                 {idx + 1}
               </td>
-              <td className="border border-zinc-200 px-3 py-2 font-medium dark:border-zinc-800">
-                <span className="block max-w-[240px] truncate" title={h.hosname}>
-                  {shortHosName(h.hosname)}
-                </span>
+              <td className="border border-zinc-200 px-3 py-2 font-medium whitespace-nowrap dark:border-zinc-800">
+                {shortHosName(h.hosname)}
               </td>
               {TH_MONTHS.map((_, monthIndex) => {
                 const m = monthIndex + 1;
@@ -431,8 +432,8 @@ function YearTable({
   yearMap: Map<string, Map<number, YearPivotRow>>;
 }) {
   return (
-    <table className="min-w-[1200px] w-full border border-zinc-200 text-xs text-zinc-800 dark:border-zinc-800 dark:text-zinc-100">
-      <thead className="bg-zinc-50 text-[11px] uppercase tracking-wide text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
+    <table className="min-w-[1200px] w-full border border-zinc-200 text-[10px] text-zinc-800 dark:border-zinc-800 dark:text-zinc-100">
+      <thead className="bg-zinc-50 text-[9px] uppercase tracking-wide text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
         <tr>
           <th rowSpan={2} className="w-16 border border-zinc-200 px-3 py-2 text-right font-semibold dark:border-zinc-800">
             ลำดับ
