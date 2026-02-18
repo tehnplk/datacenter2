@@ -1,5 +1,6 @@
 import * as React from "react";
 import MetricPage from "@/components/dashboard/MetricPage";
+import CmiChartTabs from "@/components/dashboard/CmiChartTabs";
 import YearSelect from "@/components/dashboard/YearSelect";
 import ViewTabs from "@/components/dashboard/ViewTabs";
 import { dbQuery } from "@/lib/db";
@@ -225,6 +226,50 @@ export default async function Page({
     return a.hosname.localeCompare(b.hosname, "th");
   });
 
+  const topHosChart = hosListSorted.slice(0, 9);
+  const chartSeries = topHosChart.map((h) => ({
+    key: h.hoscode,
+    label: shortHosName(h.hosname),
+  }));
+
+  const buildChartRows = (
+    valueFn: (row: DrgsSumRow | undefined) => number | null,
+  ) =>
+    TH_MONTHS.map((label, monthIndex) => {
+      const row: Record<string, number | string | null> = { month: label };
+      for (const h of topHosChart) {
+        const byMonth = monthMap.get(h.hoscode);
+        const r = byMonth?.get(monthIndex + 1);
+        row[h.hoscode] = valueFn(r);
+      }
+      return row as { month: string } & Record<string, number | string | null>;
+    });
+
+  const chartDatasets = {
+    cmi: buildChartRows((r) => r?.cmi ?? null),
+    adjrw: buildChartRows((r) => (r?.sum_adjrw ?? null)),
+    case: buildChartRows((r) => (r?.cases ?? null)),
+  };
+
+  const buildYearChartRows = (
+    valueFn: (row: YearPivotRow | undefined) => number | null,
+  ) =>
+    yearsAsc.map((yy) => {
+      const row: Record<string, number | string | null> = { year: String(yy) };
+      for (const h of topHosChart) {
+        const byYear = yearMap.get(h.hoscode);
+        const r = byYear?.get(yy);
+        row[h.hoscode] = valueFn(r);
+      }
+      return row as { year: string } & Record<string, number | string | null>;
+    });
+
+  const yearChartDatasets = {
+    cmi: buildYearChartRows((r) => r?.cmi ?? null),
+    adjrw: buildYearChartRows((r) => (r?.sum_adjrw ?? null)),
+    case: buildYearChartRows((r) => (r?.cases ?? null)),
+  };
+
   return (
     <MetricPage
       title="Case Mix Index (CMI) และ Sum adjRW ในภาพรวม และแยกตามหน่วยบริการ"
@@ -277,7 +322,7 @@ export default async function Page({
                 ))}
               </colgroup>
 
-              <thead className="sticky top-0 z-10 bg-white/90 backdrop-blur dark:bg-zinc-950/90">
+              <thead className="bg-white/90 backdrop-blur dark:bg-zinc-950/90">
                 <tr>
                   <Th className="sticky left-0 z-20 w-[72px] bg-white/95 shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950/95 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
                     ลำดับ
@@ -361,7 +406,7 @@ export default async function Page({
                 ))}
               </colgroup>
 
-              <thead className="sticky top-0 z-10 bg-white/90 backdrop-blur dark:bg-zinc-950/90">
+              <thead className="bg-white/90 backdrop-blur dark:bg-zinc-950/90">
                 <tr>
                   <Th className="sticky left-0 z-20 w-[72px] bg-white/95 shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950/95 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
                     ลำดับ
@@ -430,6 +475,28 @@ export default async function Page({
           )}
         </div>
       </div>
+
+      {view === "month" ? (
+        <div className="mt-6">
+          <CmiChartTabs
+            title={`แนวโน้มรายเดือน (ปี ${selectedYear})`}
+            series={chartSeries}
+            datasets={chartDatasets}
+            xKey="month"
+          />
+        </div>
+      ) : null}
+
+      {view === "year" ? (
+        <div className="mt-6">
+          <CmiChartTabs
+            title="แนวโน้มรายปี"
+            series={chartSeries}
+            datasets={yearChartDatasets}
+            xKey="year"
+          />
+        </div>
+      ) : null}
     </MetricPage>
   );
 }

@@ -76,7 +76,7 @@ export default function Topbar({ onOpenMobileNav }: TopbarProps) {
   }, [isOpen]);
 
   return (
-    <div className="sticky top-0 z-20 border-b border-zinc-200/70 bg-white/80 backdrop-blur dark:border-white/10 dark:bg-zinc-950/70">
+    <div className="border-b border-zinc-200/70 bg-white/80 backdrop-blur dark:border-white/10 dark:bg-zinc-950/70">
       <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
         <button
           type="button"
