@@ -75,6 +75,15 @@ export default function Topbar({ onOpenMobileNav }: TopbarProps) {
     };
   }, [isOpen]);
 
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen]);
+
   return (
     <div className="border-b border-zinc-200/70 bg-white/80 backdrop-blur dark:border-white/10 dark:bg-zinc-950/70">
       <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
@@ -112,7 +121,7 @@ export default function Topbar({ onOpenMobileNav }: TopbarProps) {
         <div className="fixed inset-0 z-50 flex min-h-screen items-center justify-center px-4 py-6">
           <button
             type="button"
-            className="absolute inset-0 bg-black/40"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm"
             aria-label="ปิดหน้าต่าง"
             onClick={() => setIsOpen(false)}
           />
@@ -135,7 +144,7 @@ export default function Topbar({ onOpenMobileNav }: TopbarProps) {
                 <div className="py-6 text-center text-rose-600">{error}</div>
               ) : (
                 <table className="w-full min-w-[640px] border-separate border-spacing-0">
-                  <thead className="sticky top-0 bg-white/90 text-[11px] uppercase text-zinc-400 backdrop-blur dark:bg-zinc-950/90">
+                  <thead className="bg-white/90 text-[11px] uppercase text-zinc-400 backdrop-blur dark:bg-zinc-950/90">
                     <tr>
                       <th className="px-3 py-2 text-left">Hos</th>
                       <th className="px-3 py-2 text-left">Sync Version</th>

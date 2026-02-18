@@ -54,13 +54,13 @@ const TH_MONTHS = [
   "ธค",
 ] as const;
 
-const SUBCOL_W_CASE = "w-[72px] min-w-[72px]";
-const SUBCOL_W_RW = "w-[96px] min-w-[96px]";
-const SUBCOL_W_CMI = "w-[72px] min-w-[72px]";
+const SUBCOL_W_CASE = "w-[60px] min-w-[60px]";
+const SUBCOL_W_RW = "w-[84px] min-w-[84px]";
+const SUBCOL_W_CMI = "w-[60px] min-w-[60px]";
 
 function monthShade(monthIndex: number) {
   return monthIndex % 2 === 0
-    ? "bg-zinc-50/70 dark:bg-white/5"
+    ? "bg-zinc-50 dark:bg-zinc-900"
     : "bg-white dark:bg-zinc-950";
 }
 
@@ -292,8 +292,8 @@ export default async function Page({
           </span>
       </div>
 
-      <div className="mt-4 overflow-hidden rounded-xl ring-1 ring-zinc-200/70 dark:ring-white/10">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200/70 bg-white px-3 py-2 text-xs text-zinc-500 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-400">
+      <div className="mt-4 overflow-hidden rounded-xl ring-1 ring-zinc-200 dark:ring-zinc-800">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
           <div className="whitespace-nowrap">
             {view === "year" ? (
               <>ปี: {yearsAsc[0] ?? "-"} - {yearsAsc.at(-1) ?? "-"}</>
@@ -309,32 +309,32 @@ export default async function Page({
 
         <div className="overflow-auto bg-white dark:bg-zinc-950">
           {view === "year" ? (
-            <table className="min-w-[1200px] w-full border-separate border-spacing-0 text-xs">
+            <table className="min-w-[1200px] w-full border-collapse text-xs">
               <colgroup>
                 <col style={{ width: 72 }} />
                 <col style={{ width: 260 }} />
                 {yearsAsc.map((_, i) => (
                   <React.Fragment key={i}>
-                    <col style={{ width: 72 }} />
-                    <col style={{ width: 96 }} />
-                    <col style={{ width: 72 }} />
+                    <col style={{ width: 60 }} />
+                    <col style={{ width: 84 }} />
+                    <col style={{ width: 60 }} />
                   </React.Fragment>
                 ))}
               </colgroup>
 
-              <thead className="bg-white/90 backdrop-blur dark:bg-zinc-950/90">
+              <thead className="bg-white dark:bg-zinc-950">
                 <tr>
-                  <Th className="sticky left-0 z-20 w-[72px] bg-white/95 shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950/95 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
+                  <Th className="sticky left-0 z-20 w-[72px] bg-white shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
                     ลำดับ
                   </Th>
-                  <Th className="sticky left-[72px] z-20 w-[260px] bg-white/95 shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950/95 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
+                  <Th className="sticky left-[72px] z-20 w-[260px] bg-white shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
                     ชื่อ รพ.
                   </Th>
 
                   {yearsAsc.map((yy, yearIndex) => (
                     <Th
                       key={yy}
-                      className={`whitespace-nowrap border-l border-zinc-200/70 p-0 text-center dark:border-white/10 ${monthShade(yearIndex)}`}
+                      className={`whitespace-nowrap border-l border-zinc-200 p-0 text-center dark:border-zinc-800 ${monthShade(yearIndex)}`}
                       colSpan={3}
                     >
                       <div className="px-3 py-2 text-center">{yy}</div>
@@ -343,8 +343,8 @@ export default async function Page({
                 </tr>
 
                 <tr>
-                  <Th className="sticky left-0 z-20 bg-white/95 dark:bg-zinc-950/95" />
-                  <Th className="sticky left-[72px] z-20 bg-white/95 dark:bg-zinc-950/95" />
+                  <Th className="sticky left-0 z-20 bg-white dark:bg-zinc-950" />
+                  <Th className="sticky left-[72px] z-20 bg-white dark:bg-zinc-950" />
                   {yearsAsc.map((yy, yearIndex) => (
                     <MonthCols key={yy} monthIndex={yearIndex} />
                   ))}
@@ -356,10 +356,10 @@ export default async function Page({
                   const byYear = yearMap.get(h.hoscode);
                   return (
                     <tr key={h.hoscode}>
-                      <Td className="sticky left-0 z-10 bg-white/95 text-right tabular-nums shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950/95 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
+                      <Td className="sticky left-0 z-10 bg-white text-right tabular-nums shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
                         {idx + 1}
                       </Td>
-                      <Td className="sticky left-[72px] z-10 bg-white/95 shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950/95 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
+                      <Td className="sticky left-[72px] z-10 bg-white shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
                         <span
                           className="block max-w-[260px] overflow-hidden text-ellipsis whitespace-nowrap"
                           title={h.hosname}
@@ -374,7 +374,7 @@ export default async function Page({
                         return (
                           <React.Fragment key={`${h.hoscode}-${yy}`}>
                             <Td
-                              className={`border-l border-zinc-100 text-right tabular-nums dark:border-white/5 ${bg} ${SUBCOL_W_CASE}`}
+                              className={`border-l border-zinc-200 text-right tabular-nums dark:border-zinc-800 ${bg} ${SUBCOL_W_CASE}`}
                             >
                               {r ? fmtNumber(r.cases, 0) : "-"}
                             </Td>
@@ -393,31 +393,31 @@ export default async function Page({
               </tbody>
             </table>
           ) : (
-            <table className="min-w-[1500px] w-full border-separate border-spacing-0 text-xs">
+            <table className="min-w-[1500px] w-full border-collapse text-xs">
               <colgroup>
                 <col style={{ width: 72 }} />
                 <col style={{ width: 260 }} />
                 {TH_MONTHS.map((_, i) => (
                   <React.Fragment key={i}>
-                    <col style={{ width: 72 }} />
-                    <col style={{ width: 96 }} />
-                    <col style={{ width: 72 }} />
+                    <col style={{ width: 60 }} />
+                    <col style={{ width: 84 }} />
+                    <col style={{ width: 60 }} />
                   </React.Fragment>
                 ))}
               </colgroup>
 
-              <thead className="bg-white/90 backdrop-blur dark:bg-zinc-950/90">
+              <thead className="bg-white dark:bg-zinc-950">
                 <tr>
-                  <Th className="sticky left-0 z-20 w-[72px] bg-white/95 shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950/95 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
+                  <Th className="sticky left-0 z-20 w-[72px] bg-white shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
                     ลำดับ
                   </Th>
-                  <Th className="sticky left-[72px] z-20 w-[260px] bg-white/95 shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950/95 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
+                  <Th className="sticky left-[72px] z-20 w-[260px] bg-white shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
                     ชื่อ รพ.
                   </Th>
                   {TH_MONTHS.map((mm, monthIndex) => (
                     <Th
                       key={mm}
-                      className={`whitespace-nowrap border-l border-zinc-200/70 p-0 text-center dark:border-white/10 ${monthShade(monthIndex)}`}
+                      className={`whitespace-nowrap border-l border-zinc-200 p-0 text-center dark:border-zinc-800 ${monthShade(monthIndex)}`}
                       colSpan={3}
                     >
                       <div className="px-3 py-2 text-center">
@@ -427,8 +427,8 @@ export default async function Page({
                   ))}
                 </tr>
                 <tr>
-                  <Th className="sticky left-0 z-20 bg-white/95 dark:bg-zinc-950/95" />
-                  <Th className="sticky left-[72px] z-20 bg-white/95 dark:bg-zinc-950/95" />
+                  <Th className="sticky left-0 z-20 bg-white dark:bg-zinc-950" />
+                  <Th className="sticky left-[72px] z-20 bg-white dark:bg-zinc-950" />
                   {TH_MONTHS.map((mm, monthIndex) => (
                     <MonthCols key={mm} monthIndex={monthIndex} />
                   ))}
@@ -439,10 +439,10 @@ export default async function Page({
                   const byMonth = monthMap.get(h.hoscode);
                   return (
                     <tr key={h.hoscode}>
-                      <Td className="sticky left-0 z-10 bg-white/95 text-right tabular-nums shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950/95 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
+                      <Td className="sticky left-0 z-10 bg-white text-right tabular-nums shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
                         {idx + 1}
                       </Td>
-                      <Td className="sticky left-[72px] z-10 bg-white/95 shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950/95 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
+                      <Td className="sticky left-[72px] z-10 bg-white shadow-[1px_0_0_0_rgba(0,0,0,0.06)] dark:bg-zinc-950 dark:shadow-[1px_0_0_0_rgba(255,255,255,0.08)]">
                         <span className="block max-w-[260px] overflow-hidden text-ellipsis whitespace-nowrap" title={h.hosname}>
                           {shortHosName(h.hosname)}
                         </span>
@@ -454,7 +454,7 @@ export default async function Page({
                         return (
                           <React.Fragment key={`${h.hoscode}-${m}`}>
                             <Td
-                              className={`border-l border-zinc-100 text-right tabular-nums dark:border-white/5 ${bg} ${SUBCOL_W_CASE}`}
+                              className={`border-l border-zinc-200 text-right tabular-nums dark:border-zinc-800 ${bg} ${SUBCOL_W_CASE}`}
                             >
                               {r ? fmtNumber(r.cases, 0) : "-"}
                             </Td>
