@@ -62,7 +62,7 @@ export default function Sidebar({
       style={{ width: computedWidth }}
       aria-label="เมนูด้านซ้าย"
     >
-      <div className="flex h-14 items-center gap-2 border-b border-green-200 px-3 dark:border-green-800">
+      <div className="flex h-14 items-center gap-2 border-b border-green-300 bg-green-100 px-3 dark:border-green-800 dark:bg-green-900">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-green-700 text-white dark:bg-green-400 dark:text-green-950">
             <span className="text-[11px] font-bold">PLK</span>

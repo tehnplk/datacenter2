@@ -98,7 +98,7 @@ export default function Topbar({ onOpenMobileNav }: TopbarProps) {
   }, [isOpen]);
 
   return (
-    <div className="border-b border-green-200 bg-white/90 backdrop-blur dark:border-green-800 dark:bg-green-950/80">
+    <div className="border-b border-green-300 bg-green-100 backdrop-blur dark:border-green-800 dark:bg-green-950/80">
       <div className="flex h-14 items-center gap-3 px-4 sm:px-6">
         <button
           type="button"

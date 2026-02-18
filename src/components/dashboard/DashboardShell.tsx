@@ -50,7 +50,7 @@ export default function DashboardShell({ children }: { children: React.ReactNode
   };
 
   return (
-    <div className="min-h-screen bg-green-50 text-green-950 dark:bg-green-950 dark:text-green-50">
+    <div className="min-h-screen bg-[#f5f9f0] text-green-950 dark:bg-green-950 dark:text-green-50">
       {/* Desktop */}
       <div className="hidden min-h-screen md:flex">
         <Sidebar
