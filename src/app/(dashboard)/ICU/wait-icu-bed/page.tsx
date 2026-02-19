@@ -96,12 +96,12 @@ export default async function Page({
           <div className="whitespace-nowrap">
             ปี: {selectedYear} • อัปเดตเมื่อ: {meta?.last_update ?? "-"}
           </div>
-          <div className="whitespace-nowrap text-right">
-            ข้อมูลจากตาราง: <span className="font-mono">transform_sync_critical_wait_bed</span>
-          </div>
         </div>
 
         <WaitBedGrid rows={rows} />
+        <div className="border-t border-zinc-200/70 bg-white px-3 py-1.5 text-right text-[11px] text-zinc-400 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-500">
+          ข้อมูลจากตาราง: <span className="font-mono">transform_sync_critical_wait_bed</span>
+        </div>
       </div>
     </MetricPage>
   );

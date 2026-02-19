@@ -134,13 +134,13 @@ export default async function Page({
           <div className="whitespace-nowrap">
             ปี: {selectedYear} • อัปเดตเมื่อ: {meta?.last_update ?? "-"}
           </div>
-          <div className="whitespace-nowrap text-right">
-            ข้อมูลจากตาราง: <span className="font-mono">transform_sync_refer_paperless</span>
-          </div>
         </div>
 
         <div className="overflow-auto bg-white dark:bg-zinc-950">
           <PivotTable hosList={hosListSorted} monthMap={monthMap} />
+        </div>
+        <div className="border-t border-zinc-200 bg-white px-3 py-1.5 text-right text-[11px] text-zinc-400 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-500">
+          ข้อมูลจากตาราง: <span className="font-mono">transform_sync_refer_paperless</span>
         </div>
       </div>
     </MetricPage>

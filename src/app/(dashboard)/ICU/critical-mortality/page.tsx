@@ -107,9 +107,11 @@ export default async function Page({
   }
 
   const hosListSorted = [...hosList].sort((a, b) => {
-    const aHas = dataMap.has(a.hoscode);
-    const bHas = dataMap.has(b.hoscode);
-    if (aHas !== bHas) return aHas ? -1 : 1;
+    for (const y of years) {
+      const aHas = dataMap.get(a.hoscode)?.has(y) === true;
+      const bHas = dataMap.get(b.hoscode)?.has(y) === true;
+      if (aHas !== bHas) return aHas ? -1 : 1;
+    }
     return (a.hosname ?? "").localeCompare(b.hosname ?? "", "th");
   });
 
@@ -141,10 +143,6 @@ export default async function Page({
       </div>
 
       <div className="overflow-hidden rounded-b-xl rounded-tr-xl ring-1 ring-zinc-200/70 dark:ring-white/10">
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-200/70 bg-white px-3 py-2 text-xs text-zinc-500 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-400">
-          <div>ข้อมูลจากตาราง: <span className="font-mono">{activeTable}</span></div>
-        </div>
-
         <div className="overflow-auto bg-white dark:bg-zinc-950">
           <table className="w-full border-separate border-spacing-0 text-xs">
             <thead className="sticky top-0 z-10 bg-white/90 backdrop-blur dark:bg-zinc-950/90">
@@ -198,6 +196,9 @@ export default async function Page({
               })}
             </tbody>
           </table>
+        </div>
+        <div className="border-t border-zinc-200/70 bg-white px-3 py-1.5 text-right text-[11px] text-zinc-400 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-500">
+          ข้อมูลจากตาราง: <span className="font-mono">{activeTable}</span>
         </div>
       </div>
     </MetricPage>
