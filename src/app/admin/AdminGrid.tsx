@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { ChevronUp, ChevronDown, ChevronsUpDown, ChevronLeft, ChevronRight } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 const PAGE_SIZE = 25;
 
@@ -76,28 +75,28 @@ export default function AdminGrid({
   selectedHos: string;
   selectedTable: string;
 }) {
-  const router = useRouter();
-
-  function handleHosChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const hos = e.target.value;
-    router.push(`/admin?table=${selectedTable}${hos ? `&hos=${hos}` : ""}`);
-  }
+  const [filterHos, setFilterHos] = React.useState(selectedHos);
   const [sortCol, setSortCol] = React.useState<string | null>(null);
   const [sortDir, setSortDir] = React.useState<SortDir>(null);
   const [page, setPage] = React.useState(0);
 
+  const filteredRows = React.useMemo(
+    () => (hasHoscode && filterHos ? rows.filter((r) => r["hoscode"] === filterHos) : rows),
+    [rows, hasHoscode, filterHos],
+  );
+
   const { summaryRows } = React.useMemo(
-    () => (hasHoscode && rows.length > 0 ? computeSummary(rows, hosMap) : { summaryRows: [] }),
-    [rows, hasHoscode, hosMap],
+    () => (hasHoscode && filteredRows.length > 0 ? computeSummary(filteredRows, hosMap) : { summaryRows: [] }),
+    [filteredRows, hasHoscode, hosMap],
   );
 
   const sorted = React.useMemo(() => {
-    if (!sortCol || !sortDir) return rows;
-    return [...rows].sort((a, b) => {
+    if (!sortCol || !sortDir) return filteredRows;
+    return [...filteredRows].sort((a, b) => {
       const cmp = compareValues(a[sortCol], b[sortCol]);
       return sortDir === "asc" ? cmp : -cmp;
     });
-  }, [rows, sortCol, sortDir]);
+  }, [filteredRows, sortCol, sortDir]);
 
   const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages - 1);
@@ -162,8 +161,8 @@ export default function AdminGrid({
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] text-green-600 dark:text-green-400">กรอง hoscode:</span>
                       <select
-                        value={selectedHos}
-                        onChange={handleHosChange}
+                        value={filterHos}
+                        onChange={(e) => { setFilterHos(e.target.value); setPage(0); }}
                         className="cursor-pointer rounded-md border border-green-200 bg-white px-2 py-0.5 text-[11px] text-green-900 focus:outline-none dark:border-green-700 dark:bg-green-900 dark:text-green-100"
                       >
                         <option value="">ทุก รพ.</option>
@@ -171,9 +170,9 @@ export default function AdminGrid({
                           <option key={h} value={h}>{h}</option>
                         ))}
                       </select>
-                      {selectedHos && (
+                      {filterHos && (
                         <button
-                          onClick={() => router.push(`/admin?table=${selectedTable}`)}
+                          onClick={() => { setFilterHos(""); setPage(0); }}
                           className="cursor-pointer rounded-md border border-green-200 bg-white px-2 py-0.5 text-[11px] text-green-600 hover:bg-green-50 dark:border-green-700 dark:bg-green-900"
                         >
                           ล้าง
