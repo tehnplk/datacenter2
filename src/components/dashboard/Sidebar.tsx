@@ -64,9 +64,9 @@ export default function Sidebar({
     >
       <div className="flex h-14 items-center gap-2 border-b border-green-300 bg-green-100 px-3 dark:border-green-800 dark:bg-green-900">
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-green-700 text-white transition-[opacity,transform] duration-300 ease-in-out dark:bg-green-400 dark:text-green-950 ${collapsed ? "scale-75 opacity-0 pointer-events-none" : "scale-100 opacity-100"}`}>
+          <Link href="/info/map" title="หน้าแรก" className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-green-700 text-white transition-[opacity,transform] duration-300 ease-in-out hover:bg-green-600 dark:bg-green-400 dark:text-green-950 dark:hover:bg-green-300 ${collapsed ? "scale-75 opacity-0 pointer-events-none" : "scale-100 opacity-100"}`}>
             <span className="text-[11px] font-bold">PLK</span>
-          </div>
+          </Link>
           <div
             className={`min-w-0 overflow-hidden transition-[max-width,opacity,transform] duration-300 ease-in-out ${
               collapsed
