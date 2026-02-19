@@ -1,0 +1,188 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+type Hospital = {
+  hoscode: string;
+  hosname: string;
+  sp_level: string | null;
+  gps: string | null;
+};
+
+const SP_LEVEL_COLOR: Record<string, string> = {
+  A: "#c0392b",
+  F1: "#2980b9",
+  F2: "#27ae60",
+  M2: "#8e44ad",
+};
+
+function getLevelColor(level: string | null) {
+  if (!level) return "#7f8c8d";
+  return SP_LEVEL_COLOR[level] ?? "#7f8c8d";
+}
+
+function redCrossSVG(color: string) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+    <circle cx="18" cy="18" r="17" fill="white" stroke="${color}" stroke-width="2.5"/>
+    <rect x="14" y="7" width="8" height="22" rx="2" fill="${color}"/>
+    <rect x="7" y="14" width="22" height="8" rx="2" fill="${color}"/>
+  </svg>`;
+}
+
+export default function HospitalMapPage() {
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<unknown>(null);
+  const [hospitals, setHospitals] = useState<Hospital[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [leafletReady, setLeafletReady] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/info/hospitals")
+      .then((r) => r.json())
+      .then((data) => {
+        setHospitals(data.hospitals ?? []);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (document.getElementById("leaflet-css")) {
+      setLeafletReady(true);
+      return;
+    }
+    const link = document.createElement("link");
+    link.id = "leaflet-css";
+    link.rel = "stylesheet";
+    link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+    document.head.appendChild(link);
+
+    const script = document.createElement("script");
+    script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
+    script.onload = () => setLeafletReady(true);
+    document.head.appendChild(script);
+  }, []);
+
+  useEffect(() => {
+    if (!leafletReady || loading || !mapRef.current || hospitals.length === 0) return;
+    if (mapInstanceRef.current) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const L = (window as any).L;
+
+    const map = L.map(mapRef.current).setView([16.85, 100.45], 9);
+    mapInstanceRef.current = map;
+
+    const osmLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 19,
+    });
+
+    const satelliteLayer = L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      {
+        attribution: "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics",
+        maxZoom: 19,
+      }
+    );
+
+    osmLayer.addTo(map);
+
+    L.control.layers(
+      { "แผนที่": osmLayer, "ดาวเทียม": satelliteLayer },
+      {},
+      { position: "topright" }
+    ).addTo(map);
+
+    hospitals.forEach((hos) => {
+      if (!hos.gps) return;
+      const [lat, lng] = hos.gps.split(",").map(Number);
+      if (isNaN(lat) || isNaN(lng)) return;
+
+      const color = getLevelColor(hos.sp_level);
+      const svgStr = redCrossSVG(color);
+      const iconUrl = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgStr)));
+
+      const icon = L.icon({
+        iconUrl,
+        iconSize: [36, 36],
+        iconAnchor: [18, 18],
+        popupAnchor: [0, -20],
+      });
+
+      const levelBadge = hos.sp_level
+        ? `<span style="background:${color};color:#fff;padding:1px 5px;border-radius:10px;font-size:10px;font-weight:700;">${hos.sp_level}</span>`
+        : "";
+
+      const marker = L.marker([lat, lng], { icon }).addTo(map);
+
+      marker.bindTooltip(
+        `<div style="font-family:sans-serif;line-height:1.4;display:flex;align-items:center;gap:4px;">
+          ${levelBadge}
+          <span style="font-weight:700;font-size:10px;">${hos.hosname}</span>
+        </div>`,
+        { permanent: true, direction: "top", offset: [0, -20], className: "hos-label" }
+      );
+
+      marker.bindPopup(
+        `<div style="font-family:sans-serif;min-width:160px;">
+          <div style="font-weight:700;font-size:14px;margin-bottom:4px;">${hos.hosname}</div>
+          <div>รหัส: <b>${hos.hoscode}</b></div>
+          <div>ระดับ: ${levelBadge}</div>
+          <div style="font-size:11px;color:#888;margin-top:4px;">${lat.toFixed(6)}, ${lng.toFixed(6)}</div>
+        </div>`
+      );
+    });
+
+    return () => {
+      map.remove();
+      mapInstanceRef.current = null;
+    };
+  }, [leafletReady, loading, hospitals]);
+
+  return (
+    <div className="flex flex-col" style={{ height: "calc(100vh - 66px)" }}>
+      <div className="flex items-center gap-3 border-b border-green-200 bg-white px-5 py-3 dark:border-green-800 dark:bg-green-900">
+        <span className="text-xl">🗺️</span>
+        <div>
+          <div className="font-bold text-green-900 dark:text-green-50">แผนที่โรงพยาบาล จ.พิษณุโลก</div>
+          <div className="text-xs text-green-600 dark:text-green-300">Hospital Map — Phitsanulok Province</div>
+        </div>
+        <div className="ml-auto flex flex-wrap gap-2">
+          {Object.entries(SP_LEVEL_COLOR).map(([lvl, col]) => (
+            <span
+              key={lvl}
+              style={{ background: col }}
+              className="rounded-full px-3 py-0.5 text-xs font-bold text-white"
+            >
+              {lvl}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {loading && (
+        <div className="flex flex-1 items-center justify-center text-green-700 dark:text-green-300">
+          กำลังโหลดข้อมูล...
+        </div>
+      )}
+
+      <div style={{ flex: 1, display: loading ? "none" : "block", padding: "15px" }}>
+        <div ref={mapRef} style={{ height: "100%", borderRadius: 8, overflow: "hidden" }} />
+      </div>
+
+      <style>{`
+        .hos-label {
+          background: rgba(255,255,255,0.92) !important;
+          border: none !important;
+          border-radius: 6px !important;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.18) !important;
+          padding: 3px 8px !important;
+          font-size: 12px !important;
+          white-space: nowrap !important;
+        }
+        .hos-label::before { display: none !important; }
+      `}</style>
+    </div>
+  );
+}
