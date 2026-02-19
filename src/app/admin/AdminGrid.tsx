@@ -45,7 +45,8 @@ function isNumeric(val: unknown): val is number {
 
 function computeSummary(
   rows: Record<string, unknown>[],
-): { summaryRows: { hoscode: string; count: number }[] } {
+  hosMap: Record<string, string>,
+): { summaryRows: { hoscode: string; hosname: string; count: number }[] } {
   const map = new Map<string, number>();
   for (const row of rows) {
     const hos = String(row["hoscode"] ?? "");
@@ -53,7 +54,7 @@ function computeSummary(
   }
   const summaryRows = Array.from(map.entries())
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([hoscode, count]) => ({ hoscode, count }));
+    .map(([hoscode, count]) => ({ hoscode, hosname: hosMap[hoscode] ?? "", count }));
   return { summaryRows };
 }
 
@@ -61,18 +62,20 @@ export default function AdminGrid({
   cols,
   rows,
   hasHoscode,
+  hosMap,
 }: {
   cols: string[];
   rows: Record<string, unknown>[];
   hasHoscode: boolean;
+  hosMap: Record<string, string>;
 }) {
   const [sortCol, setSortCol] = React.useState<string | null>(null);
   const [sortDir, setSortDir] = React.useState<SortDir>(null);
   const [page, setPage] = React.useState(0);
 
   const { summaryRows } = React.useMemo(
-    () => (hasHoscode && rows.length > 0 ? computeSummary(rows) : { summaryRows: [] }),
-    [rows, hasHoscode],
+    () => (hasHoscode && rows.length > 0 ? computeSummary(rows, hosMap) : { summaryRows: [] }),
+    [rows, hasHoscode, hosMap],
   );
 
   const sorted = React.useMemo(() => {
@@ -108,6 +111,31 @@ export default function AdminGrid({
 
   return (
     <div className="flex flex-col gap-2">
+
+      {/* Summary: record count group by hoscode — above datagrid */}
+      {summaryRows.length > 1 && (
+        <div className="inline-block overflow-auto rounded-xl border border-green-300 bg-green-50 shadow-sm dark:border-green-700 dark:bg-green-900/50">
+          <table className="border-separate border-spacing-0 text-xs">
+            <thead>
+              <tr>
+                <th className="border-b border-green-200 px-4 py-2 text-left font-semibold text-green-700 whitespace-nowrap dark:border-green-700 dark:text-green-300">hoscode</th>
+                <th className="border-b border-green-200 px-4 py-2 text-left font-semibold text-green-700 whitespace-nowrap dark:border-green-700 dark:text-green-300">hosname</th>
+                <th className="border-b border-green-200 px-4 py-2 text-right font-semibold text-green-700 whitespace-nowrap dark:border-green-700 dark:text-green-300">rows</th>
+              </tr>
+            </thead>
+            <tbody>
+              {summaryRows.map((row, ri) => (
+                <tr key={ri} className="border-b border-green-100 last:border-0 hover:bg-green-100 dark:border-green-800 dark:hover:bg-green-800/40">
+                  <td className="px-4 py-1.5 font-semibold text-green-900 whitespace-nowrap dark:text-green-100">{row.hoscode}</td>
+                  <td className="px-4 py-1.5 text-green-800 whitespace-nowrap dark:text-green-200">{row.hosname || "-"}</td>
+                  <td className="px-4 py-1.5 text-right tabular-nums font-medium text-green-800 whitespace-nowrap dark:text-green-200">{row.count.toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
       <div className="overflow-auto rounded-xl border border-green-200 bg-white shadow-sm dark:border-green-800 dark:bg-green-950">
         {rows.length === 0 ? (
           <div className="px-6 py-10 text-center text-sm text-green-600">ไม่พบข้อมูล</div>
@@ -198,35 +226,6 @@ export default function AdminGrid({
         </div>
       )}
 
-      {/* Summary: record count group by hoscode */}
-      {summaryRows.length > 1 && (
-        <div className="mt-4">
-          <div className="mb-1 text-xs font-semibold text-green-700 dark:text-green-300">
-            สรุป (จำนวน records group by hoscode)
-          </div>
-          <div className="inline-block overflow-auto rounded-xl border border-green-300 bg-green-50 shadow-sm dark:border-green-700 dark:bg-green-900/50">
-            <table className="border-separate border-spacing-0 text-xs">
-              <thead>
-                <tr>
-                  <th className="border-b border-green-200 px-4 py-2 text-left font-semibold text-green-700 whitespace-nowrap dark:border-green-700 dark:text-green-300">hoscode</th>
-                  <th className="border-b border-green-200 px-4 py-2 text-right font-semibold text-green-700 whitespace-nowrap dark:border-green-700 dark:text-green-300">จำนวน records</th>
-                </tr>
-              </thead>
-              <tbody>
-                {summaryRows.map((row, ri) => (
-                  <tr
-                    key={ri}
-                    className="border-b border-green-100 last:border-0 hover:bg-green-100 dark:border-green-800 dark:hover:bg-green-800/40"
-                  >
-                    <td className="px-4 py-1.5 font-semibold text-green-900 whitespace-nowrap dark:text-green-100">{row.hoscode}</td>
-                    <td className="px-4 py-1.5 text-right tabular-nums text-green-800 whitespace-nowrap dark:text-green-200">{row.count.toLocaleString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -31,6 +31,7 @@ function isValidTable(name: string): name is TableName {
 }
 
 type HosRow = { hoscode: string };
+type HosNameRow = { hoscode: string; hosname: string | null };
 
 export default async function AdminPage({
   searchParams,
@@ -46,6 +47,12 @@ export default async function AdminPage({
   const hospitals = await dbQuery<HosRow>(
     `select distinct hoscode from public.c_hos order by hoscode asc`,
   );
+
+  const hosNames = await dbQuery<HosNameRow>(
+    `select hoscode, hosname from public.c_hos order by hoscode asc`,
+  );
+  const hosMap: Record<string, string> = {};
+  for (const h of hosNames) hosMap[h.hoscode] = h.hosname ?? "";
 
   const columns = await dbQuery<{ column_name: string }>(
     `select column_name from information_schema.columns
@@ -127,7 +134,7 @@ export default async function AdminPage({
               ไม่พบตาราง
             </div>
           ) : (
-            <AdminGrid cols={cols} rows={rows} hasHoscode={hasHoscode} />
+            <AdminGrid cols={cols} rows={rows} hasHoscode={hasHoscode} hosMap={hosMap} />
           )}
         </div>
       </div>
