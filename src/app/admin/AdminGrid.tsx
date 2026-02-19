@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { ChevronUp, ChevronDown, ChevronsUpDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const PAGE_SIZE = 25;
 
@@ -63,12 +64,24 @@ export default function AdminGrid({
   rows,
   hasHoscode,
   hosMap,
+  hospitals,
+  selectedHos,
+  selectedTable,
 }: {
   cols: string[];
   rows: Record<string, unknown>[];
   hasHoscode: boolean;
   hosMap: Record<string, string>;
+  hospitals: string[];
+  selectedHos: string;
+  selectedTable: string;
 }) {
+  const router = useRouter();
+
+  function handleHosChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const hos = e.target.value;
+    router.push(`/admin?table=${selectedTable}${hos ? `&hos=${hos}` : ""}`);
+  }
   const [sortCol, setSortCol] = React.useState<string | null>(null);
   const [sortDir, setSortDir] = React.useState<SortDir>(null);
   const [page, setPage] = React.useState(0);
@@ -142,6 +155,34 @@ export default function AdminGrid({
         ) : (
           <table className="w-full border-separate border-spacing-0 text-xs">
             <thead className="sticky top-0 z-10 bg-green-50/95 backdrop-blur dark:bg-green-900/95">
+              {/* Filter row */}
+              {hasHoscode && (
+                <tr>
+                  <th className="border-b border-green-100 bg-white px-2 py-1 dark:border-green-800 dark:bg-green-950" colSpan={cols.length}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-green-600 dark:text-green-400">กรอง hoscode:</span>
+                      <select
+                        value={selectedHos}
+                        onChange={handleHosChange}
+                        className="cursor-pointer rounded-md border border-green-200 bg-white px-2 py-0.5 text-[11px] text-green-900 focus:outline-none dark:border-green-700 dark:bg-green-900 dark:text-green-100"
+                      >
+                        <option value="">ทุก รพ.</option>
+                        {hospitals.map((h) => (
+                          <option key={h} value={h}>{h}</option>
+                        ))}
+                      </select>
+                      {selectedHos && (
+                        <button
+                          onClick={() => router.push(`/admin?table=${selectedTable}`)}
+                          className="cursor-pointer rounded-md border border-green-200 bg-white px-2 py-0.5 text-[11px] text-green-600 hover:bg-green-50 dark:border-green-700 dark:bg-green-900"
+                        >
+                          ล้าง
+                        </button>
+                      )}
+                    </div>
+                  </th>
+                </tr>
+              )}
               <tr>
                 {cols.map((col) => (
                   <th

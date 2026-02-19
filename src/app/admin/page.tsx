@@ -1,7 +1,6 @@
 import * as React from "react";
 import { dbQuery } from "@/lib/db";
 import AdminGrid from "./AdminGrid";
-import HosFilter from "./HosFilter";
 
 export const dynamic = "force-dynamic";
 
@@ -118,13 +117,6 @@ export default async function AdminPage({
             </span>
           </div>
 
-          {hasHoscode && (
-            <HosFilter
-              table={selectedTable}
-              hospitals={hospitals}
-              selectedHos={selectedHos}
-            />
-          )}
         </div>
 
         {/* Data grid */}
@@ -134,7 +126,15 @@ export default async function AdminPage({
               ไม่พบตาราง
             </div>
           ) : (
-            <AdminGrid cols={cols} rows={rows} hasHoscode={hasHoscode} hosMap={hosMap} />
+            <AdminGrid
+              cols={cols}
+              rows={rows}
+              hasHoscode={hasHoscode}
+              hosMap={hosMap}
+              hospitals={hospitals.map((h) => h.hoscode)}
+              selectedHos={selectedHos}
+              selectedTable={selectedTable}
+            />
           )}
         </div>
       </div>
