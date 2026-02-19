@@ -75,7 +75,7 @@ export default async function Page({
     dbQuery<PaperlessRow>(
       `
       select
-        s.hoscode,
+        h.hoscode,
         h.hosname,
         h.hosname_short,
         s.y,
@@ -86,10 +86,10 @@ export default async function Page({
           then (s.moph_refer_count::float8 / s.refer_out_count::float8)
           else null
         end as rate
-      from public.transform_sync_refer_paperless s
-      left join public.c_hos h on h.hoscode = s.hoscode
-      where s.y = $1
-      order by h.hosname asc nulls last, s.hoscode asc, s.m asc;
+      from public.c_hos h
+      left join public.transform_sync_refer_paperless s
+        on s.hoscode = h.hoscode and s.y = $1
+      order by h.hosname asc nulls last, h.hoscode asc, s.m asc;
       `,
       [selectedYear],
     ),
@@ -105,10 +105,18 @@ export default async function Page({
 
   const monthMap = new Map<string, Map<number, PaperlessRow>>();
   for (const r of rows) {
+    if (r.m == null) continue;
     const m = monthMap.get(r.hoscode) ?? new Map<number, PaperlessRow>();
     m.set(r.m, r);
     monthMap.set(r.hoscode, m);
   }
+
+  const hosListSorted = [...hosList].sort((a, b) => {
+    const aHas = monthMap.has(a.hoscode);
+    const bHas = monthMap.has(b.hoscode);
+    if (aHas !== bHas) return aHas ? -1 : 1;
+    return (a.hosname ?? "").localeCompare(b.hosname ?? "", "th");
+  });
 
   return (
     <MetricPage
@@ -132,7 +140,7 @@ export default async function Page({
         </div>
 
         <div className="overflow-auto bg-white dark:bg-zinc-950">
-          <PivotTable hosList={hosList} monthMap={monthMap} />
+          <PivotTable hosList={hosListSorted} monthMap={monthMap} />
         </div>
       </div>
     </MetricPage>

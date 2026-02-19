@@ -1,14 +1,15 @@
 import * as React from "react";
 import MetricPage from "@/components/dashboard/MetricPage";
-import HosSelect, { type HosItem } from "@/components/dashboard/HosSelect";
 import YearSelect from "@/components/dashboard/YearSelect";
 import { dbQuery } from "@/lib/db";
+import WaitBedGrid from "./WaitBedGrid";
 
 export const dynamic = "force-dynamic";
 
 type WaitBedRow = {
   hoscode: string;
   hosname: string | null;
+  hosname_short: string | null;
   yr: number;
   yr_be: number | null;
   total_cases: number | null;
@@ -22,27 +23,6 @@ type WaitBedRow = {
   avg_refer_wait_hr: number | null;
   pct_over_4hr: number | null;
 };
-
-function fmtNumber(n: number, digits = 2) {
-  return new Intl.NumberFormat("th-TH", {
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits,
-  }).format(n);
-}
-
-function formatHourMinute(totalMinutes: number | null) {
-  if (totalMinutes == null || Number.isNaN(totalMinutes)) return "-";
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = Math.round(totalMinutes % 60);
-  return `${hours} ชม ${minutes} นาที`;
-}
-
-function shortHosName(name: string) {
-  const raw = name.trim();
-  if (raw.includes("สมเด็จพระยุพราชนครไทย")) return "รพร.นครไทย";
-  if (raw.includes("พุทธชินราช")) return "รพศ.พุทธชินราช";
-  return raw.replace(/^โรงพยาบาล\s*/u, "รพ.");
-}
 
 export default async function Page({
   searchParams,
@@ -59,23 +39,14 @@ export default async function Page({
     toInt(sp.year) ?? (years.length ? years[0] : new Date().getFullYear());
 
   const selectedHos = sp.hos?.trim() || undefined;
-  const where: string[] = ["s.yr = $1"];
-  const params: Array<string | number> = [selectedYear];
-  if (selectedHos) {
-    params.push(selectedHos);
-    where.push(`s.hoscode = $${params.length}`);
-  }
-  const whereSql = where.length ? `where ${where.join(" and ")}` : "";
 
-  const [hosList, rows, meta] = await Promise.all([
-    dbQuery<HosItem>(
-      `select hoscode, hosname from public.c_hos order by hosname asc;`,
-    ),
+  const [rows, meta] = await Promise.all([
     dbQuery<WaitBedRow>(
       `
       select
-        s.hoscode,
+        h.hoscode,
         h.hosname,
+        h.hosname_short,
         s.yr,
         s.yr_be,
         s.total_cases,
@@ -88,20 +59,23 @@ export default async function Page({
         s.avg_refer_wait_min,
         s.avg_refer_wait_hr,
         s.pct_over_4hr
-      from public.transform_sync_critical_wait_bed s
-      left join public.c_hos h on h.hoscode = s.hoscode
-      ${whereSql}
-      order by h.hosname asc nulls last, s.hoscode asc;
+      from public.c_hos h
+      left join public.transform_sync_critical_wait_bed s
+        on s.hoscode = h.hoscode and s.yr = $1
+      where ($2::text is null or h.hoscode = $2)
+      order by
+        (s.total_cases is not null) desc,
+        h.hosname asc nulls last;
       `,
-      params,
+      [selectedYear, selectedHos ?? null],
     ),
     dbQuery<{ row_count: number; last_update: string | null }>(
       `
       select
-        (select count(*)::int from public.transform_sync_critical_wait_bed s ${whereSql}) as row_count,
-        (select max(d_update)::text from public.transform_sync_critical_wait_bed s ${whereSql}) as last_update;
+        (select count(*)::int from public.transform_sync_critical_wait_bed where yr = $1) as row_count,
+        (select max(d_update)::text from public.transform_sync_critical_wait_bed where yr = $1) as last_update;
       `,
-      params,
+      [selectedYear],
     ).then((r) => r[0]),
   ]);
 
@@ -114,7 +88,6 @@ export default async function Page({
       titleClassName="hidden"
     >
       <div className="flex flex-wrap items-center justify-end gap-3">
-        <HosSelect hospitals={hosList} value={selectedHos} />
         <YearSelect years={years} value={selectedYear} />
       </div>
 
@@ -128,32 +101,7 @@ export default async function Page({
           </div>
         </div>
 
-        <div className="overflow-auto bg-white dark:bg-zinc-950">
-          <table className="min-w-[720px] w-full border-separate border-spacing-0 text-xs">
-            <thead className="bg-white dark:bg-zinc-950">
-              <tr>
-                <Th className="w-[64px] text-right">ลำดับ</Th>
-                <Th className="min-w-[220px]">ชื่อ รพ.</Th>
-                <Th className="w-[120px] text-right">จำนวน case</Th>
-                <Th className="w-[260px] text-right">ระยะเวลารอเตียงเฉลี่ย</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r, idx) => (
-                <tr key={`${r.hoscode}-${idx}`}>
-                  <Td className="text-right tabular-nums">{idx + 1}</Td>
-                  <Td>{r.hosname ? shortHosName(r.hosname) : r.hoscode}</Td>
-                  <Td className="text-right tabular-nums">
-                    {r.total_cases != null ? fmtNumber(r.total_cases, 0) : "-"}
-                  </Td>
-                  <Td className="text-right tabular-nums">
-                    {formatHourMinute(r.avg_admit_wait_min)}
-                  </Td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <WaitBedGrid rows={rows} />
       </div>
     </MetricPage>
   );
@@ -163,26 +111,4 @@ function toInt(v: string | undefined) {
   if (!v) return undefined;
   const n = Number.parseInt(v, 10);
   return Number.isFinite(n) ? n : undefined;
-}
-
-function Th({ className, children, ...props }: React.ThHTMLAttributes<HTMLTableCellElement>) {
-  return (
-    <th
-      className={`border-b border-zinc-200/70 px-3 py-2 text-left text-xs font-semibold text-zinc-600 dark:border-white/10 dark:text-zinc-300 ${className ?? ""}`}
-      {...props}
-    >
-      {children}
-    </th>
-  );
-}
-
-function Td({ className, children, ...props }: React.TdHTMLAttributes<HTMLTableCellElement>) {
-  return (
-    <td
-      className={`border-b border-zinc-200/70 px-3 py-2 text-zinc-800 dark:border-white/10 dark:text-zinc-100 ${className ?? ""}`}
-      {...props}
-    >
-      {children}
-    </td>
-  );
 }
