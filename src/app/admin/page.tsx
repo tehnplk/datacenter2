@@ -79,7 +79,6 @@ export default async function AdminPage({
         <nav className="flex-1 overflow-y-auto py-1">
           {TABLES.map((t) => {
             const active = t === selectedTable;
-            const shortName = t.replace("transform_sync_", "");
             return (
               <a
                 key={t}
@@ -90,7 +89,7 @@ export default async function AdminPage({
                     : "text-green-800 hover:bg-green-50 dark:text-green-200 dark:hover:bg-green-800/50"
                 }`}
               >
-                <span className="block truncate font-mono">{shortName}</span>
+                <span className="block truncate font-mono">{t}</span>
               </a>
             );
           })}
@@ -128,7 +127,7 @@ export default async function AdminPage({
               ไม่พบตาราง
             </div>
           ) : (
-            <AdminGrid cols={cols} rows={rows} />
+            <AdminGrid cols={cols} rows={rows} hasHoscode={hasHoscode} />
           )}
         </div>
       </div>
