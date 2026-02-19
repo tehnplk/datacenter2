@@ -416,7 +416,7 @@ function MonthTable({
                     <td className="border border-zinc-200 px-2 py-2 text-right tabular-nums dark:border-zinc-800">
                       {r ? fmtNumber(r.sum_adjrw, 4) : "-"}
                     </td>
-                    <td className="border border-zinc-200 px-2 py-2 text-right tabular-nums dark:border-zinc-800">
+                    <td className="border border-zinc-200 px-2 py-2 text-right tabular-nums font-bold dark:border-zinc-800">
                       {r?.cmi != null ? fmtNumber(r.cmi, 4) : "-"}
                     </td>
                   </React.Fragment>
@@ -501,7 +501,7 @@ function YearTable({
                     <td className="border border-zinc-200 px-2 py-2 text-right tabular-nums dark:border-zinc-800">
                       {r ? fmtNumber(r.sum_adjrw, 4) : "-"}
                     </td>
-                    <td className="border border-zinc-200 px-2 py-2 text-right tabular-nums dark:border-zinc-800">
+                    <td className="border border-zinc-200 px-2 py-2 text-right tabular-nums font-bold dark:border-zinc-800">
                       {r?.cmi != null ? fmtNumber(r.cmi, 4) : "-"}
                     </td>
                   </React.Fragment>
