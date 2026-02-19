@@ -148,8 +148,8 @@ export default async function Page({
             <thead className="sticky top-0 z-10 bg-white/90 backdrop-blur dark:bg-zinc-950/90">
               {/* Year header row */}
               <tr>
-                <Th className="sticky left-0 z-20 w-8 bg-white/95 dark:bg-zinc-950/95" rowSpan={2}>ลำดับ</Th>
-                <Th className="sticky left-8 z-20 w-40 bg-white/95 text-left dark:bg-zinc-950/95" rowSpan={2}>ชื่อ รพ.</Th>
+                <Th className="w-8" rowSpan={2}>ลำดับ</Th>
+                <Th className="w-40 text-left" rowSpan={2}>ชื่อ รพ.</Th>
                 {years.map((y) => (
                   <Th key={y} colSpan={3} className="border-l border-zinc-200/70 dark:border-white/10">
                     ปี {y + 543}
@@ -173,8 +173,8 @@ export default async function Page({
                 const displayName = h.hosname_short?.trim() || h.hosname || h.hoscode;
                 return (
                   <tr key={h.hoscode} className={idx % 2 === 0 ? "" : "bg-zinc-50/60 dark:bg-white/[0.02]"}>
-                    <Td className="sticky left-0 z-10 bg-inherit text-center tabular-nums">{idx + 1}</Td>
-                    <Td className="sticky left-8 z-10 bg-inherit font-medium">{displayName}</Td>
+                    <Td className="text-center tabular-nums">{idx + 1}</Td>
+                    <Td className="font-medium">{displayName}</Td>
                     {years.map((y) => {
                       const d = hosData?.get(y);
                       return (

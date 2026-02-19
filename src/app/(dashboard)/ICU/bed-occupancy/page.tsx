@@ -196,8 +196,8 @@ export default async function Page({
           <table className="min-w-[1000px] w-full border-separate border-spacing-0 text-xs">
             <thead className="sticky top-0 z-10 bg-white/90 backdrop-blur dark:bg-zinc-950/90">
               <tr>
-                <Th className="sticky left-0 z-20 w-[72px] bg-white/95 dark:bg-zinc-950/95">ลำดับ</Th>
-                <Th className="sticky left-[72px] z-20 w-[260px] bg-white/95 dark:bg-zinc-950/95">ชื่อ รพ.</Th>
+                <Th className="w-[72px]">ลำดับ</Th>
+                <Th className="w-[260px]">ชื่อ รพ.</Th>
                 <Th className="w-[160px]">รหัสเตียง 6 หลัก</Th>
                 <Th className="w-[220px]">ชื่อเตียง</Th>
                 <Th className="w-[120px] text-right">จำนวนเตียง</Th>
@@ -209,10 +209,10 @@ export default async function Page({
             <tbody>
               {rows.map((r, idx) => (
                 <tr key={`${r.hoscode}-${r.export_code}-${idx}`}>
-                  <Td className="sticky left-0 z-10 bg-white/95 text-right tabular-nums dark:bg-zinc-950/95">
+                  <Td className="text-right tabular-nums">
                     {idx + 1}
                   </Td>
-                  <Td className="sticky left-[72px] z-10 bg-white/95 dark:bg-zinc-950/95">
+                  <Td>
                     {r.hosname_short?.trim() || r.hosname || r.hoscode}
                   </Td>
                   <Td>{formatBedCode(r.export_code)}</Td>
