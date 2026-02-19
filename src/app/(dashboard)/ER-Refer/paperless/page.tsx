@@ -20,6 +20,7 @@ type HosRow = {
   hoscode: string;
   hosname: string;
   hosname_short: string | null;
+  sp_level: string | null;
 };
 
 const TH_MONTHS = [
@@ -36,6 +37,13 @@ const TH_MONTHS = [
   "พย",
   "ธค",
 ] as const;
+
+const SP_COLORS: Record<string, string> = {
+  A: "#c0392b",
+  F1: "#2980b9",
+  F2: "#27ae60",
+  M2: "#8e44ad",
+};
 
 function fmtNumber(n: number, digits = 2) {
   return new Intl.NumberFormat("th-TH", {
@@ -70,7 +78,7 @@ export default async function Page({
 
   const [hosList, rows, meta] = await Promise.all([
     dbQuery<HosRow>(
-      `select hoscode, hosname, hosname_short from public.c_hos order by hosname asc;`,
+      `select hoscode, hosname, hosname_short, sp_level from public.c_hos order by hosname asc;`,
     ),
     dbQuery<PaperlessRow>(
       `
@@ -153,7 +161,7 @@ function PivotTable({
 }: {
   hosList: HosRow[];
   monthMap: Map<string, Map<number, PaperlessRow>>;
-}) {
+})  {
   return (
     <table className="min-w-[1800px] w-full border border-zinc-200 text-[10px] text-zinc-800 dark:border-zinc-800 dark:text-zinc-100">
       <thead className="bg-zinc-50 text-[9px] uppercase tracking-wide text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
@@ -202,7 +210,12 @@ function PivotTable({
                 {idx + 1}
               </td>
               <td className="border border-zinc-200 px-3 py-2 font-medium whitespace-nowrap dark:border-zinc-800">
-                {displayHosName(h.hosname, h.hosname_short)}
+                <span className="inline-flex items-center gap-1.5">
+                  {h.sp_level && (
+                    <span className="shrink-0 rounded px-1 py-0.5 text-[10px] font-bold text-white" style={{ background: SP_COLORS[h.sp_level] ?? "#7f8c8d" }}>{h.sp_level}</span>
+                  )}
+                  {displayHosName(h.hosname, h.hosname_short)}
+                </span>
               </td>
               {TH_MONTHS.map((_, monthIndex) => {
                 const m = monthIndex + 1;

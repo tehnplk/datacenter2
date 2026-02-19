@@ -5,6 +5,13 @@ import { dbQuery } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
+const SP_COLORS: Record<string, string> = {
+  A: "#c0392b",
+  F1: "#2980b9",
+  F2: "#27ae60",
+  M2: "#8e44ad",
+};
+
 const DEFAULT_DATE_FORMAT = "th-TH";
 const ICU_CODES = ["201","202","203","204","205","206","207","208","209","210","211"] as const;
 const SEMI_ICU_CODES = ["301","302"] as const;
@@ -23,6 +30,7 @@ type BedOccupancyRow = {
   hoscode: string;
   hosname: string | null;
   hosname_short: string | null;
+  sp_level: string | null;
   export_code: string;
   bed_type_name: string | null;
   total_beds: number;
@@ -108,7 +116,7 @@ export default async function Page({
         group by hoscode, export_code
       ),
       all_combos as (
-        select h.hoscode, h.hosname, h.hosname_short, bc.export_code
+        select h.hoscode, h.hosname, h.hosname_short, h.sp_level, bc.export_code
         from public.c_hos h
         cross join (select distinct export_code from bed_counts) bc
       ),
@@ -117,6 +125,7 @@ export default async function Page({
           ac.hoscode,
           ac.hosname,
           ac.hosname_short,
+          ac.sp_level,
           ac.export_code,
           cb.name as bed_type_name,
           coalesce(bc.total_beds, 0)::int as total_beds,
@@ -213,7 +222,12 @@ export default async function Page({
                     {idx + 1}
                   </Td>
                   <Td>
-                    {r.hosname_short?.trim() || r.hosname || r.hoscode}
+                    <span className="inline-flex items-center gap-1.5">
+                      {r.sp_level && (
+                        <span className="shrink-0 rounded px-1 py-0.5 text-[10px] font-bold text-white" style={{ background: SP_COLORS[r.sp_level] ?? "#7f8c8d" }}>{r.sp_level}</span>
+                      )}
+                      {r.hosname_short?.trim() || r.hosname || r.hoscode}
+                    </span>
                   </Td>
                   <Td>{formatBedCode(r.export_code)}</Td>
                   <Td>{r.bed_type_name ?? "-"}</Td>

@@ -4,6 +4,13 @@ import { dbQuery } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
+const SP_COLORS: Record<string, string> = {
+  A: "#c0392b",
+  F1: "#2980b9",
+  F2: "#27ae60",
+  M2: "#8e44ad",
+};
+
 const TABS = [
   { key: "sepsis", label: "Sepsis", table: "transform_sync_mortality_sepsis" },
   { key: "ami",    label: "AMI",    table: "transform_sync_mortality_ami" },
@@ -20,7 +27,7 @@ type MortalityRow = {
   mortality_rate_pct: number | null;
 };
 
-type HosRow = { hoscode: string; hosname: string | null; hosname_short: string | null };
+type HosRow = { hoscode: string; hosname: string | null; hosname_short: string | null; sp_level: string | null };
 
 function fmt(n: number | null | undefined): string {
   if (n == null) return "-";
@@ -65,7 +72,7 @@ export default async function Page({
 
   const [hosList, rows] = await Promise.all([
     dbQuery<HosRow>(
-      `select hoscode, hosname, hosname_short from public.c_hos order by hosname asc;`,
+      `select hoscode, hosname, hosname_short, sp_level from public.c_hos order by hosname asc;`,
     ),
     dbQuery<MortalityRow>(
       `
@@ -174,7 +181,14 @@ export default async function Page({
                 return (
                   <tr key={h.hoscode} className={idx % 2 === 0 ? "" : "bg-zinc-50/60 dark:bg-white/[0.02]"}>
                     <Td className="text-center tabular-nums">{idx + 1}</Td>
-                    <Td className="font-medium">{displayName}</Td>
+                    <Td className="font-medium">
+                      <span className="inline-flex items-center gap-1.5">
+                        {h.sp_level && (
+                          <span className="shrink-0 rounded px-1 py-0.5 text-[10px] font-bold text-white" style={{ background: SP_COLORS[h.sp_level] ?? "#7f8c8d" }}>{h.sp_level}</span>
+                        )}
+                        {displayName}
+                      </span>
+                    </Td>
                     {years.map((y) => {
                       const d = hosData?.get(y);
                       return (

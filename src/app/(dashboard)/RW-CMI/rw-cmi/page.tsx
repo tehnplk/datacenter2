@@ -22,12 +22,14 @@ type HosRow = {
   hoscode: string;
   hosname: string;
   hosname_short: string | null;
+  sp_level: string | null;
 };
 
 type YearSummaryRow = {
   hoscode: string;
   hosname: string;
   hosname_short: string | null;
+  sp_level: string | null;
   cases: number;
   sum_adjrw: number;
   cmi: number | null;
@@ -37,6 +39,7 @@ type YearPivotRow = {
   hoscode: string;
   hosname: string;
   hosname_short: string | null;
+  sp_level: string | null;
   y: number | null;
   cases: number;
   sum_adjrw: number;
@@ -57,6 +60,13 @@ const TH_MONTHS = [
   "พย",
   "ธค",
 ] as const;
+
+const SP_COLORS: Record<string, string> = {
+  A: "#c0392b",
+  F1: "#2980b9",
+  F2: "#27ae60",
+  M2: "#8e44ad",
+};
 
 function fmtNumber(n: number, digits = 2) {
   return new Intl.NumberFormat("th-TH", {
@@ -100,7 +110,7 @@ export default async function Page({
 
   const [hosList, rows, yearSummary, yearPivot, meta] = await Promise.all([
     dbQuery<HosRow>(
-      `select hoscode, hosname, hosname_short from public.c_hos order by hosname asc;`,
+      `select hoscode, hosname, hosname_short, sp_level from public.c_hos order by hosname asc;`,
     ),
     dbQuery<DrgsSumRow>(
       `
@@ -127,6 +137,7 @@ export default async function Page({
         h.hoscode,
         h.hosname,
         h.hosname_short,
+        h.sp_level,
         coalesce(sum(s.num_pt), 0)::int as cases,
         coalesce(sum(s.sum_adjrw), 0)::float8 as sum_adjrw,
         case when sum(s.num_pt) > 0 then (sum(s.sum_adjrw) / sum(s.num_pt))::float8 else null end as cmi
@@ -145,6 +156,7 @@ export default async function Page({
         h.hoscode,
         h.hosname,
         h.hosname_short,
+        h.sp_level,
         s.y,
         coalesce(sum(s.num_pt), 0)::int as cases,
         coalesce(sum(s.sum_adjrw), 0)::float8 as sum_adjrw,
@@ -403,7 +415,12 @@ function MonthTable({
                 {idx + 1}
               </td>
               <td className="border border-zinc-200 px-3 py-2 font-medium whitespace-nowrap dark:border-zinc-800">
-                {displayHosName(h.hosname, h.hosname_short)}
+                <span className="inline-flex items-center gap-1.5">
+                  {h.sp_level && (
+                    <span className="shrink-0 rounded px-1 py-0.5 text-[10px] font-bold text-white" style={{ background: SP_COLORS[h.sp_level] ?? "#7f8c8d" }}>{h.sp_level}</span>
+                  )}
+                  {displayHosName(h.hosname, h.hosname_short)}
+                </span>
               </td>
               {TH_MONTHS.map((_, monthIndex) => {
                 const m = monthIndex + 1;
@@ -487,8 +504,13 @@ function YearTable({
                 {idx + 1}
               </td>
               <td className="border border-zinc-200 px-3 py-2 font-medium dark:border-zinc-800">
-                <span className="block max-w-[240px] truncate" title={h.hosname}>
-                  {displayHosName(h.hosname, h.hosname_short)}
+                <span className="inline-flex items-center gap-1.5">
+                  {h.sp_level && (
+                    <span className="shrink-0 rounded px-1 py-0.5 text-[10px] font-bold text-white" style={{ background: SP_COLORS[h.sp_level] ?? "#7f8c8d" }}>{h.sp_level}</span>
+                  )}
+                  <span className="block max-w-[240px] truncate" title={h.hosname}>
+                    {displayHosName(h.hosname, h.hosname_short)}
+                  </span>
                 </span>
               </td>
               {years.map((yy) => {

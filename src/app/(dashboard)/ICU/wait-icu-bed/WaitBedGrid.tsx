@@ -7,6 +7,7 @@ type WaitBedRow = {
   hoscode: string;
   hosname: string | null;
   hosname_short: string | null;
+  sp_level: string | null;
   yr: number;
   yr_be: number | null;
   total_cases: number | null;
@@ -19,6 +20,13 @@ type WaitBedRow = {
   avg_refer_wait_min: number | null;
   avg_refer_wait_hr: number | null;
   pct_over_4hr: number | null;
+};
+
+const SP_COLORS: Record<string, string> = {
+  A: "#c0392b",
+  F1: "#2980b9",
+  F2: "#27ae60",
+  M2: "#8e44ad",
 };
 
 type SortKey = "hosname" | "total_cases" | "avg_admit_wait_min";
@@ -83,12 +91,12 @@ export default function WaitBedGrid({ rows }: { rows: WaitBedRow[] }) {
 
   return (
     <div className="overflow-auto bg-white dark:bg-zinc-950">
-      <table className="min-w-[720px] w-full border-separate border-spacing-0 text-xs">
+      <table className="min-w-[720px] border-separate border-spacing-0 text-xs">
         <thead className="bg-white dark:bg-zinc-950">
           <tr>
             <Th className="w-[64px] text-right">ลำดับ</Th>
             <Th
-              className="min-w-[220px] cursor-pointer select-none hover:bg-zinc-50 dark:hover:bg-zinc-900"
+              className="w-[220px] cursor-pointer select-none hover:bg-zinc-50 dark:hover:bg-zinc-900"
               onClick={() => handleSort("hosname")}
             >
               <span className="inline-flex items-center gap-1">
@@ -117,7 +125,14 @@ export default function WaitBedGrid({ rows }: { rows: WaitBedRow[] }) {
           {sorted.map((r, idx) => (
             <tr key={`${r.hoscode}-${idx}`} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/40">
               <Td className="text-right tabular-nums">{idx + 1}</Td>
-              <Td>{r.hosname_short?.trim() || r.hosname || r.hoscode}</Td>
+              <Td>
+                <span className="inline-flex items-center gap-1.5">
+                  {r.sp_level && (
+                    <span className="shrink-0 rounded px-1 py-0.5 text-[10px] font-bold text-white" style={{ background: SP_COLORS[r.sp_level] ?? "#7f8c8d" }}>{r.sp_level}</span>
+                  )}
+                  {r.hosname_short?.trim() || r.hosname || r.hoscode}
+                </span>
+              </Td>
               <Td className="text-right tabular-nums">
                 {r.total_cases != null ? fmtNumber(r.total_cases, 0) : "-"}
               </Td>

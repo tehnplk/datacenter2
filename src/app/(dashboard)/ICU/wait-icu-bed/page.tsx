@@ -10,6 +10,7 @@ type WaitBedRow = {
   hoscode: string;
   hosname: string | null;
   hosname_short: string | null;
+  sp_level: string | null;
   yr: number;
   yr_be: number | null;
   total_cases: number | null;
@@ -47,6 +48,7 @@ export default async function Page({
         h.hoscode,
         h.hosname,
         h.hosname_short,
+        h.sp_level,
         s.yr,
         s.yr_be,
         s.total_cases,
