@@ -44,33 +44,17 @@ function isNumeric(val: unknown): val is number {
 }
 
 function computeSummary(
-  cols: string[],
   rows: Record<string, unknown>[],
-): { sumCols: string[]; summaryRows: Record<string, unknown>[] } {
-  const numericCols = cols.filter(
-    (c) => c !== "hoscode" && rows.some((r) => isNumeric(r[c])),
-  );
-  const sumCols = ["hoscode", ...numericCols];
-
-  const map = new Map<string, Record<string, number>>();
+): { summaryRows: { hoscode: string; count: number }[] } {
+  const map = new Map<string, number>();
   for (const row of rows) {
     const hos = String(row["hoscode"] ?? "");
-    if (!map.has(hos)) {
-      const init: Record<string, number> = {};
-      numericCols.forEach((c) => (init[c] = 0));
-      map.set(hos, init);
-    }
-    const acc = map.get(hos)!;
-    for (const c of numericCols) {
-      if (isNumeric(row[c])) acc[c] += row[c] as number;
-    }
+    map.set(hos, (map.get(hos) ?? 0) + 1);
   }
-
-  const summaryRows: Record<string, unknown>[] = Array.from(map.entries())
+  const summaryRows = Array.from(map.entries())
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([hos, sums]) => ({ hoscode: hos, ...sums }));
-
-  return { sumCols, summaryRows };
+    .map(([hoscode, count]) => ({ hoscode, count }));
+  return { summaryRows };
 }
 
 export default function AdminGrid({
@@ -86,9 +70,9 @@ export default function AdminGrid({
   const [sortDir, setSortDir] = React.useState<SortDir>(null);
   const [page, setPage] = React.useState(0);
 
-  const { sumCols, summaryRows } = React.useMemo(
-    () => (hasHoscode && rows.length > 0 ? computeSummary(cols, rows) : { sumCols: [], summaryRows: [] }),
-    [cols, rows, hasHoscode],
+  const { summaryRows } = React.useMemo(
+    () => (hasHoscode && rows.length > 0 ? computeSummary(rows) : { summaryRows: [] }),
+    [rows, hasHoscode],
   );
 
   const sorted = React.useMemo(() => {
@@ -214,24 +198,18 @@ export default function AdminGrid({
         </div>
       )}
 
-      {/* Summary: sum group by hoscode */}
-      {summaryRows.length > 1 && sumCols.length > 1 && (
+      {/* Summary: record count group by hoscode */}
+      {summaryRows.length > 1 && (
         <div className="mt-4">
           <div className="mb-1 text-xs font-semibold text-green-700 dark:text-green-300">
-            สรุป (Sum group by hoscode)
+            สรุป (จำนวน records group by hoscode)
           </div>
-          <div className="overflow-auto rounded-xl border border-green-300 bg-green-50 shadow-sm dark:border-green-700 dark:bg-green-900/50">
-            <table className="w-full border-separate border-spacing-0 text-xs">
+          <div className="inline-block overflow-auto rounded-xl border border-green-300 bg-green-50 shadow-sm dark:border-green-700 dark:bg-green-900/50">
+            <table className="border-separate border-spacing-0 text-xs">
               <thead>
                 <tr>
-                  {sumCols.map((col) => (
-                    <th
-                      key={col}
-                      className="border-b border-green-200 px-3 py-2 text-left font-semibold text-green-700 whitespace-nowrap dark:border-green-700 dark:text-green-300"
-                    >
-                      {col}
-                    </th>
-                  ))}
+                  <th className="border-b border-green-200 px-4 py-2 text-left font-semibold text-green-700 whitespace-nowrap dark:border-green-700 dark:text-green-300">hoscode</th>
+                  <th className="border-b border-green-200 px-4 py-2 text-right font-semibold text-green-700 whitespace-nowrap dark:border-green-700 dark:text-green-300">จำนวน records</th>
                 </tr>
               </thead>
               <tbody>
@@ -240,18 +218,8 @@ export default function AdminGrid({
                     key={ri}
                     className="border-b border-green-100 last:border-0 hover:bg-green-100 dark:border-green-800 dark:hover:bg-green-800/40"
                   >
-                    {sumCols.map((col) => {
-                      const val = row[col];
-                      const isHos = col === "hoscode";
-                      return (
-                        <td
-                          key={col}
-                          className={`px-3 py-1.5 whitespace-nowrap dark:text-green-100 ${isHos ? "font-semibold text-green-900" : "text-right tabular-nums text-green-800 dark:text-green-200"}`}
-                        >
-                          {val == null ? "-" : isHos ? String(val) : typeof val === "number" ? val.toLocaleString("th-TH", { maximumFractionDigits: 4 }) : String(val)}
-                        </td>
-                      );
-                    })}
+                    <td className="px-4 py-1.5 font-semibold text-green-900 whitespace-nowrap dark:text-green-100">{row.hoscode}</td>
+                    <td className="px-4 py-1.5 text-right tabular-nums text-green-800 whitespace-nowrap dark:text-green-200">{row.count.toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>
