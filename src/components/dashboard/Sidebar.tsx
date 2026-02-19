@@ -64,7 +64,7 @@ export default function Sidebar({
     >
       <div className="flex h-14 items-center gap-2 border-b border-green-300 bg-green-100 px-3 dark:border-green-800 dark:bg-green-900">
         <div className="flex min-w-0 flex-1 items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-green-700 text-white dark:bg-green-400 dark:text-green-950">
+          <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-green-700 text-white transition-[opacity,transform] duration-300 ease-in-out dark:bg-green-400 dark:text-green-950 ${collapsed ? "scale-75 opacity-0 pointer-events-none" : "scale-100 opacity-100"}`}>
             <span className="text-[11px] font-bold">PLK</span>
           </div>
           <div
@@ -104,6 +104,7 @@ export default function Sidebar({
                 onToggle={() =>
                   setOpenGroups((p) => ({ ...p, [group.id]: !p[group.id] }))
                 }
+                onToggleCollapsed={onToggleCollapsed}
                 pathname={pathname}
                 onNavigate={onNavigate}
                 onSelectExclusive={selectExclusiveGroup}
@@ -121,6 +122,7 @@ function Group({
   collapsed,
   open,
   onToggle,
+  onToggleCollapsed,
   pathname,
   onNavigate,
   onSelectExclusive,
@@ -129,6 +131,7 @@ function Group({
   collapsed: boolean;
   open: boolean;
   onToggle: () => void;
+  onToggleCollapsed: () => void;
   pathname: string;
   onNavigate?: () => void;
   onSelectExclusive: (groupId: string) => void;
@@ -137,7 +140,7 @@ function Group({
     <div className="rounded-2xl border border-transparent bg-transparent">
       <button
         type="button"
-        onClick={onToggle}
+        onClick={collapsed ? onToggleCollapsed : onToggle}
         className={`flex w-full cursor-pointer items-center gap-2 rounded-2xl px-2.5 py-2 text-left text-sm font-medium text-green-900 hover:bg-green-100 dark:text-green-100 dark:hover:bg-green-800/50 ${
           collapsed ? "justify-center" : "justify-between"
         }`}
