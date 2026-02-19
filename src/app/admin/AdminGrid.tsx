@@ -75,19 +75,28 @@ export default function AdminGrid({
   selectedHos: string;
   selectedTable: string;
 }) {
-  const [filterHos, setFilterHos] = React.useState(selectedHos);
+  const [colFilters, setColFilters] = React.useState<Record<string, string>>(
+    hasHoscode && selectedHos ? { hoscode: selectedHos } : {},
+  );
   const [sortCol, setSortCol] = React.useState<string | null>(null);
   const [sortDir, setSortDir] = React.useState<SortDir>(null);
   const [page, setPage] = React.useState(0);
 
-  const filteredRows = React.useMemo(
-    () => (hasHoscode && filterHos ? rows.filter((r) => r["hoscode"] === filterHos) : rows),
-    [rows, hasHoscode, filterHos],
-  );
+  const filteredRows = React.useMemo(() => {
+    return rows.filter((row) =>
+      cols.every((col) => {
+        const f = colFilters[col]?.trim();
+        if (!f) return true;
+        const val = formatValue(row[col]);
+        if (col === "hoscode") return val === f;
+        return val.toLowerCase().includes(f.toLowerCase());
+      }),
+    );
+  }, [rows, cols, colFilters]);
 
   const { summaryRows } = React.useMemo(
-    () => (hasHoscode && filteredRows.length > 0 ? computeSummary(filteredRows, hosMap) : { summaryRows: [] }),
-    [filteredRows, hasHoscode, hosMap],
+    () => (hasHoscode && rows.length > 0 ? computeSummary(rows, hosMap) : { summaryRows: [] }),
+    [rows, hasHoscode, hosMap],
   );
 
   const sorted = React.useMemo(() => {
@@ -97,6 +106,16 @@ export default function AdminGrid({
       return sortDir === "asc" ? cmp : -cmp;
     });
   }, [filteredRows, sortCol, sortDir]);
+
+  function setFilter(col: string, val: string) {
+    setColFilters((prev) => {
+      const next = { ...prev };
+      if (val === "") delete next[col];
+      else next[col] = val;
+      return next;
+    });
+    setPage(0);
+  }
 
   const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages - 1);
@@ -124,7 +143,7 @@ export default function AdminGrid({
   return (
     <div className="flex flex-col gap-2">
 
-      {/* Summary: record count group by hoscode — above datagrid */}
+      {/* Summary: always visible */}
       {summaryRows.length > 1 && (
         <div className="inline-block overflow-auto rounded-xl border border-green-300 bg-green-50 shadow-sm dark:border-green-700 dark:bg-green-900/50">
           <table className="border-separate border-spacing-0 text-xs">
@@ -154,34 +173,6 @@ export default function AdminGrid({
         ) : (
           <table className="w-full border-separate border-spacing-0 text-xs">
             <thead className="sticky top-0 z-10 bg-green-50/95 backdrop-blur dark:bg-green-900/95">
-              {/* Filter row */}
-              {hasHoscode && (
-                <tr>
-                  <th className="border-b border-green-100 bg-white px-2 py-1 dark:border-green-800 dark:bg-green-950" colSpan={cols.length}>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-green-600 dark:text-green-400">กรอง hoscode:</span>
-                      <select
-                        value={filterHos}
-                        onChange={(e) => { setFilterHos(e.target.value); setPage(0); }}
-                        className="cursor-pointer rounded-md border border-green-200 bg-white px-2 py-0.5 text-[11px] text-green-900 focus:outline-none dark:border-green-700 dark:bg-green-900 dark:text-green-100"
-                      >
-                        <option value="">ทุก รพ.</option>
-                        {hospitals.map((h) => (
-                          <option key={h} value={h}>{h}</option>
-                        ))}
-                      </select>
-                      {filterHos && (
-                        <button
-                          onClick={() => { setFilterHos(""); setPage(0); }}
-                          className="cursor-pointer rounded-md border border-green-200 bg-white px-2 py-0.5 text-[11px] text-green-600 hover:bg-green-50 dark:border-green-700 dark:bg-green-900"
-                        >
-                          ล้าง
-                        </button>
-                      )}
-                    </div>
-                  </th>
-                </tr>
-              )}
               <tr>
                 {cols.map((col) => (
                   <th
@@ -198,6 +189,36 @@ export default function AdminGrid({
               </tr>
             </thead>
             <tbody>
+              {/* Filter row — first row in tbody */}
+              <tr className="bg-green-50/80 dark:bg-green-900/60">
+                {cols.map((col) => {
+                  const isHos = col === "hoscode" && hasHoscode;
+                  return (
+                    <td key={col} className="border-b border-green-200 px-1.5 py-1 dark:border-green-800">
+                      {isHos ? (
+                        <select
+                          value={colFilters[col] ?? ""}
+                          onChange={(e) => setFilter(col, e.target.value)}
+                          className="w-full cursor-pointer rounded border border-green-200 bg-white px-1.5 py-0.5 text-[11px] text-green-900 focus:outline-none dark:border-green-700 dark:bg-green-900 dark:text-green-100"
+                        >
+                          <option value="">ทุก</option>
+                          {hospitals.map((h) => (
+                            <option key={h} value={h}>{h}</option>
+                          ))}
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          value={colFilters[col] ?? ""}
+                          onChange={(e) => setFilter(col, e.target.value)}
+                          placeholder="กรอง..."
+                          className="w-full rounded border border-green-200 bg-white px-1.5 py-0.5 text-[11px] text-green-900 placeholder-green-300 focus:outline-none dark:border-green-700 dark:bg-green-900 dark:text-green-100"
+                        />
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
               {pageRows.map((row, ri) => (
                 <tr
                   key={ri}
