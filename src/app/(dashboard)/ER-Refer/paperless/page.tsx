@@ -1,6 +1,7 @@
 import * as React from "react";
 import MetricPage from "@/components/dashboard/MetricPage";
 import YearSelect from "@/components/dashboard/YearSelect";
+import SpLevelBadge from "@/components/dashboard/SpLevelBadge";
 import { dbQuery } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -37,13 +38,6 @@ const TH_MONTHS = [
   "พย",
   "ธค",
 ] as const;
-
-const SP_COLORS: Record<string, string> = {
-  A: "#c0392b",
-  F1: "#2980b9",
-  F2: "#27ae60",
-  M2: "#8e44ad",
-};
 
 function fmtNumber(n: number, digits = 2) {
   return new Intl.NumberFormat("th-TH", {
@@ -211,9 +205,7 @@ function PivotTable({
               </td>
               <td className="border border-zinc-200 px-3 py-2 font-medium whitespace-nowrap dark:border-zinc-800">
                 <span className="inline-flex items-center gap-1.5">
-                  {h.sp_level && (
-                    <span className="shrink-0 rounded px-1 py-0.5 text-[10px] font-bold text-white" style={{ background: SP_COLORS[h.sp_level] ?? "#7f8c8d" }}>{h.sp_level}</span>
-                  )}
+                  <SpLevelBadge level={h.sp_level} />
                   {displayHosName(h.hosname, h.hosname_short)}
                 </span>
               </td>

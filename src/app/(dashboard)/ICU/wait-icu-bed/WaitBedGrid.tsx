@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
+import SpLevelBadge from "@/components/dashboard/SpLevelBadge";
 
 type WaitBedRow = {
   hoscode: string;
@@ -20,13 +21,6 @@ type WaitBedRow = {
   avg_refer_wait_min: number | null;
   avg_refer_wait_hr: number | null;
   pct_over_4hr: number | null;
-};
-
-const SP_COLORS: Record<string, string> = {
-  A: "#c0392b",
-  F1: "#2980b9",
-  F2: "#27ae60",
-  M2: "#8e44ad",
 };
 
 type SortKey = "hosname" | "total_cases" | "avg_admit_wait_min";
@@ -127,9 +121,7 @@ export default function WaitBedGrid({ rows }: { rows: WaitBedRow[] }) {
               <Td className="text-right tabular-nums">{idx + 1}</Td>
               <Td>
                 <span className="inline-flex items-center gap-1.5">
-                  {r.sp_level && (
-                    <span className="shrink-0 rounded px-1 py-0.5 text-[10px] font-bold text-white" style={{ background: SP_COLORS[r.sp_level] ?? "#7f8c8d" }}>{r.sp_level}</span>
-                  )}
+                  <SpLevelBadge level={r.sp_level} />
                   {r.hosname_short?.trim() || r.hosname || r.hoscode}
                 </span>
               </Td>

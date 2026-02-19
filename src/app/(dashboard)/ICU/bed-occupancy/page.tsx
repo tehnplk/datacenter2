@@ -1,16 +1,10 @@
 import * as React from "react";
 import MetricPage from "@/components/dashboard/MetricPage";
 import DateRangeSelect from "@/components/dashboard/DateRangeSelect";
+import SpLevelBadge from "@/components/dashboard/SpLevelBadge";
 import { dbQuery } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
-
-const SP_COLORS: Record<string, string> = {
-  A: "#c0392b",
-  F1: "#2980b9",
-  F2: "#27ae60",
-  M2: "#8e44ad",
-};
 
 const DEFAULT_DATE_FORMAT = "th-TH";
 const ICU_CODES = ["201","202","203","204","205","206","207","208","209","210","211"] as const;
@@ -223,9 +217,7 @@ export default async function Page({
                   </Td>
                   <Td>
                     <span className="inline-flex items-center gap-1.5">
-                      {r.sp_level && (
-                        <span className="shrink-0 rounded px-1 py-0.5 text-[10px] font-bold text-white" style={{ background: SP_COLORS[r.sp_level] ?? "#7f8c8d" }}>{r.sp_level}</span>
-                      )}
+                      <SpLevelBadge level={r.sp_level} />
                       {r.hosname_short?.trim() || r.hosname || r.hoscode}
                     </span>
                   </Td>

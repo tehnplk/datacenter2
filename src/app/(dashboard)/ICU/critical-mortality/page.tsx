@@ -1,15 +1,9 @@
 import * as React from "react";
 import MetricPage from "@/components/dashboard/MetricPage";
+import SpLevelBadge from "@/components/dashboard/SpLevelBadge";
 import { dbQuery } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
-
-const SP_COLORS: Record<string, string> = {
-  A: "#c0392b",
-  F1: "#2980b9",
-  F2: "#27ae60",
-  M2: "#8e44ad",
-};
 
 const TABS = [
   { key: "sepsis", label: "Sepsis", table: "transform_sync_mortality_sepsis" },
@@ -183,9 +177,7 @@ export default async function Page({
                     <Td className="text-center tabular-nums">{idx + 1}</Td>
                     <Td className="font-medium">
                       <span className="inline-flex items-center gap-1.5">
-                        {h.sp_level && (
-                          <span className="shrink-0 rounded px-1 py-0.5 text-[10px] font-bold text-white" style={{ background: SP_COLORS[h.sp_level] ?? "#7f8c8d" }}>{h.sp_level}</span>
-                        )}
+                        <SpLevelBadge level={h.sp_level} />
                         {displayName}
                       </span>
                     </Td>
