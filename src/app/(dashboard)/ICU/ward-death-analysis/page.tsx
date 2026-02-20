@@ -60,10 +60,11 @@ const TABS: { key: TabKey; label: string }[] = [
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: { year?: string; tab?: string } | Promise<{ year?: string; tab?: string }>;
+  searchParams?: { year?: string; tab?: string; hos?: string } | Promise<{ year?: string; tab?: string; hos?: string }>;
 }) {
   const sp = await Promise.resolve(searchParams ?? {});
   const selectedTab: TabKey = sp.tab === "by-hospital" ? "by-hospital" : "overview";
+  const selectedHos = sp.hos ?? null;
 
   const years = await dbQuery<{ y: number }>(
     `SELECT DISTINCT y FROM public.transform_sync_normal_ward_death ORDER BY y DESC`,
@@ -102,7 +103,7 @@ export default async function Page({
 
   const top10Pdx = top10.map((t) => t.pdx);
 
-  const hosMap = new Map<string, HosRow & { byPdx: Map<string, number> }>();
+  const hosMap = new Map<string, HosRow & { byPdx: Map<string, { name: string | null; count: number }> }>();
   for (const r of rows) {
     if (!hosMap.has(r.hoscode)) {
       hosMap.set(r.hoscode, {
@@ -116,10 +117,13 @@ export default async function Page({
     }
     const h = hosMap.get(r.hoscode)!;
     h.total_death += r.death_count;
-    h.byPdx.set(r.pdx, (h.byPdx.get(r.pdx) ?? 0) + r.death_count);
+    const prev = h.byPdx.get(r.pdx);
+    h.byPdx.set(r.pdx, { name: r.pdx_name, count: (prev?.count ?? 0) + r.death_count });
   }
 
   const hosList = [...hosMap.values()].sort((a, b) => b.total_death - a.total_death);
+  const activeHos = selectedHos ?? (hosList.length ? hosList[0].hoscode : null);
+  const activeHosData = hosMap.get(activeHos ?? "");
 
   const thCls = "border border-zinc-200 px-2 py-1.5 text-center text-[10px] font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-300 whitespace-nowrap";
   const tdCls = "border border-zinc-200 px-2 py-1.5 text-right tabular-nums text-[11px] dark:border-zinc-800";
@@ -164,10 +168,16 @@ export default async function Page({
             <span>ปี {selectedYear} • อัปเดต: {meta?.last_update?.slice(0, 10) ?? "-"}</span>
           </div>
           <div className="overflow-auto bg-white dark:bg-zinc-950">
-            <table className="w-full text-sm">
+            <table className="w-full max-w-2xl text-sm">
+              <colgroup>
+                <col className="w-10" />
+                <col className="w-24" />
+                <col />
+                <col className="w-20" />
+              </colgroup>
               <thead className="bg-zinc-50 dark:bg-zinc-900">
                 <tr>
-                  <th className={`${thCls} w-10 text-right`}>อันดับ</th>
+                  <th className={`${thCls} text-right`}>อันดับ</th>
                   <th className={`${thCls} text-left`}>รหัส ICD-10</th>
                   <th className={`${thCls} text-left`}>ชื่อโรค</th>
                   <th className={`${thCls}`}>จำนวนตาย</th>
@@ -194,49 +204,75 @@ export default async function Page({
       {/* Tab: รายโรงพยาบาล */}
       {selectedTab === "by-hospital" && (
         <div className="overflow-hidden rounded-b-xl rounded-tr-xl ring-1 ring-zinc-200/70 dark:ring-white/10">
-          <div className="border-b border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-400">
-            <span className="font-semibold text-zinc-700 dark:text-zinc-200">จำนวนผู้เสียชีวิตแยกรายโรงพยาบาล × Top 10 โรค</span>
-            <span className="ml-3">ปี {selectedYear} • อัปเดต: {meta?.last_update?.slice(0, 10) ?? "-"}</span>
+          {/* Hospital sub-tabs */}
+          <div className="overflow-x-auto border-b border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="flex min-w-max gap-0.5 px-2 pt-2">
+              {hosList.map((h) => {
+                const isActive = h.hoscode === activeHos;
+                const params = new URLSearchParams({ year: String(selectedYear), tab: "by-hospital", hos: h.hoscode });
+                return (
+                  <a
+                    key={h.hoscode}
+                    href={`?${params.toString()}`}
+                    className={`flex items-center gap-1 rounded-t-md border border-b-0 px-3 py-1.5 text-[11px] font-medium whitespace-nowrap transition-colors ${
+                      isActive
+                        ? "border-zinc-200 bg-white text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-50"
+                        : "border-transparent text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                    }`}
+                  >
+                    <SpLevelBadge level={h.sp_level} />
+                    {displayHosName(h.hosname, h.hosname_short)}
+                    <span className="ml-1 rounded-full bg-red-100 px-1.5 py-0.5 text-[9px] font-bold text-red-600 dark:bg-red-950/50 dark:text-red-400">
+                      {fmtNum(h.total_death)}
+                    </span>
+                  </a>
+                );
+              })}
+            </div>
           </div>
-          <div className="overflow-auto bg-white dark:bg-zinc-950">
-            <table className="min-w-max w-full text-[11px]">
-              <thead className="bg-zinc-50 dark:bg-zinc-900">
-                <tr>
-                  <th className={`${thCls} w-8 text-right`}>ลำดับ</th>
-                  <th className={`${thCls} text-left`}>ชื่อ รพ.</th>
-                  <th className={`${thCls}`}>รวม</th>
-                  {top10.map((t) => (
-                    <th key={t.pdx} className={thCls} title={t.pdx_name ?? ""}>
-                      <div className="font-mono">{t.pdx}</div>
-                      <div className="text-[9px] font-normal text-zinc-400 max-w-[80px] truncate">{t.pdx_name}</div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {hosList.map((h, idx) => (
-                  <tr key={h.hoscode} className="odd:bg-white even:bg-zinc-50/60 dark:odd:bg-zinc-950 dark:even:bg-zinc-900">
-                    <td className={`${tdCls} text-center`}>{idx + 1}</td>
-                    <td className={`${tdCls} text-left whitespace-nowrap`}>
-                      <div className="flex items-start gap-1.5">
-                        <SpLevelBadge level={h.sp_level} />
-                        <div>{displayHosName(h.hosname, h.hosname_short)}</div>
-                      </div>
-                    </td>
-                    <td className={`${tdCls} font-bold text-red-600 dark:text-red-400`}>{fmtNum(h.total_death)}</td>
-                    {top10Pdx.map((pdx) => {
-                      const cnt = h.byPdx.get(pdx) ?? 0;
-                      return (
-                        <td key={pdx} className={tdCls}>
-                          {cnt > 0 ? fmtNum(cnt) : "-"}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+
+          {/* Hospital detail - vertical list */}
+          {activeHosData && (
+            <div className="bg-white dark:bg-zinc-950">
+              <div className="border-b border-zinc-200 px-3 py-2 text-xs text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
+                <span className="font-semibold text-zinc-700 dark:text-zinc-200">
+                  {displayHosName(activeHosData.hosname, activeHosData.hosname_short)}
+                </span>
+                <span className="ml-3">ปี {selectedYear} • รวม {fmtNum(activeHosData.total_death)} ราย</span>
+              </div>
+              <div className="overflow-auto">
+                <table className="w-full max-w-xl text-[11px]">
+                  <colgroup>
+                    <col className="w-10" />
+                    <col className="w-24" />
+                    <col />
+                    <col className="w-20" />
+                  </colgroup>
+                  <thead className="bg-zinc-50 dark:bg-zinc-900">
+                    <tr>
+                      <th className={`${thCls} text-right`}>ลำดับ</th>
+                      <th className={`${thCls} text-left`}>รหัส ICD-10</th>
+                      <th className={`${thCls} text-left`}>ชื่อโรค</th>
+                      <th className={`${thCls}`}>จำนวนตาย</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...activeHosData.byPdx.entries()]
+                      .sort((a, b) => b[1].count - a[1].count)
+                      .map(([pdx, { name, count }], idx) => (
+                        <tr key={pdx} className="odd:bg-white even:bg-zinc-50/60 dark:odd:bg-zinc-950 dark:even:bg-zinc-900">
+                          <td className={`${tdCls} text-center font-bold`}>{idx + 1}</td>
+                          <td className={`${tdCls} text-left font-mono`}>{pdx}</td>
+                          <td className={`${tdCls} text-left`}>{name ?? "-"}</td>
+                          <td className={`${tdCls} font-bold text-red-600 dark:text-red-400`}>{fmtNum(count)}</td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
           <div className="border-t border-zinc-200 bg-white px-3 py-1.5 text-right text-[11px] text-zinc-400 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-500">
             ข้อมูลจากตาราง: <span className="font-mono">transform_sync_normal_ward_death</span>
           </div>
