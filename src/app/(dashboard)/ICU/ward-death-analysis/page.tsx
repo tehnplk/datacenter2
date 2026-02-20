@@ -126,7 +126,8 @@ export default async function Page({
   const activeHosData = hosMap.get(activeHos ?? "");
 
   const thCls = "border border-zinc-200 px-2 py-1.5 text-center text-[10px] font-semibold text-zinc-600 dark:border-zinc-800 dark:text-zinc-300 whitespace-nowrap";
-  const tdCls = "border border-zinc-200 px-2 py-1.5 text-right tabular-nums text-[11px] dark:border-zinc-800";
+  const tdCls = "border border-zinc-200 px-2 py-1.5 text-[11px] dark:border-zinc-800";
+  const tdNum = `${tdCls} text-right tabular-nums`;
 
   return (
     <MetricPage
@@ -186,10 +187,10 @@ export default async function Page({
               <tbody>
                 {top10.map((t) => (
                   <tr key={t.pdx} className="odd:bg-white even:bg-zinc-50/60 dark:odd:bg-zinc-950 dark:even:bg-zinc-900">
-                    <td className={`${tdCls} text-center font-bold`}>{t.rank}</td>
-                    <td className={`${tdCls} text-left font-mono`}>{t.pdx}</td>
-                    <td className={`${tdCls} text-left`}>{t.pdx_name ?? "-"}</td>
-                    <td className={`${tdCls} font-bold text-red-600 dark:text-red-400`}>{fmtNum(t.total_death)}</td>
+                    <td className={`${tdNum} text-center font-bold`}>{t.rank}</td>
+                    <td className={`${tdCls} text-center font-mono`}>{t.pdx}</td>
+                    <td className={tdCls}>{t.pdx_name ?? "-"}</td>
+                    <td className={`${tdNum} font-bold text-red-600 dark:text-red-400`}>{fmtNum(t.total_death)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -261,10 +262,10 @@ export default async function Page({
                       .sort((a, b) => b[1].count - a[1].count)
                       .map(([pdx, { name, count }], idx) => (
                         <tr key={pdx} className="odd:bg-white even:bg-zinc-50/60 dark:odd:bg-zinc-950 dark:even:bg-zinc-900">
-                          <td className={`${tdCls} text-center font-bold`}>{idx + 1}</td>
-                          <td className={`${tdCls} text-left font-mono`}>{pdx}</td>
-                          <td className={`${tdCls} text-left`}>{name ?? "-"}</td>
-                          <td className={`${tdCls} font-bold text-red-600 dark:text-red-400`}>{fmtNum(count)}</td>
+                          <td className={`${tdNum} text-center font-bold`}>{idx + 1}</td>
+                          <td className={`${tdCls} text-center font-mono`}>{pdx}</td>
+                          <td className={tdCls}>{name ?? "-"}</td>
+                          <td className={`${tdNum} font-bold text-red-600 dark:text-red-400`}>{fmtNum(count)}</td>
                         </tr>
                       ))}
                   </tbody>

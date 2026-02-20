@@ -110,12 +110,12 @@ export default async function Page({
               ไม่พบข้อมูลโรงพยาบาล
             </div>
           ) : (
-            <table className="min-w-[640px] w-full border-separate border-spacing-0 text-xs">
+            <table className="w-full max-w-3xl border-separate border-spacing-0 text-xs">
               <thead className="sticky top-0 z-10 bg-white/90 backdrop-blur dark:bg-zinc-950/90">
                 <tr>
                   <Th className="w-[56px] text-center">ลำดับ</Th>
                   <Th className="w-[120px]">ICD10</Th>
-                  <Th className="min-w-[320px]">รายละเอียดโรค</Th>
+                  <Th>รายละเอียดโรค</Th>
                   <Th className="w-[140px] text-right font-semibold text-zinc-700 dark:text-zinc-100">จำนวน Refer</Th>
                 </tr>
               </thead>
