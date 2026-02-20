@@ -88,18 +88,6 @@ export const DASHBOARD_NAV: NavGroup[] = [
     ],
   },
   {
-    id: "erp",
-    label: "ERP",
-    icon: <ClipboardList className="h-4 w-4" />,
-    items: [
-      {
-        id: "beds",
-        label: "เตียง: รวม/ชายหญิง/ทั่วไป/พิเศษ/ICU/semi + ครองเตียง",
-        href: "/ERP/bed-summary",
-      },
-    ],
-  },
-  {
     id: "or",
     label: "OR",
     icon: <Scissors className="h-4 w-4" />,
@@ -135,6 +123,18 @@ export const DASHBOARD_NAV: NavGroup[] = [
         id: "metformin",
         label: "ความปลอดภัย Metformin (MALA Prevention)",
         href: "/Phama/metformin-safety",
+      },
+    ],
+  },
+  {
+    id: "erp",
+    label: "ERP",
+    icon: <ClipboardList className="h-4 w-4" />,
+    items: [
+      {
+        id: "beds",
+        label: "เตียง: รวม/ชายหญิง/ทั่วไป/พิเศษ/ICU/semi + ครองเตียง",
+        href: "/ERP/bed-summary",
       },
     ],
   },
