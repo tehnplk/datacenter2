@@ -7,18 +7,29 @@ import { dbQuery } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 const DEFAULT_DATE_FORMAT = "th-TH";
-const ICU_CODES = ["201","202","203","204","205","206","207","208","209","210","211"] as const;
-const SEMI_ICU_CODES = ["301","302"] as const;
-const BED_TYPE_CODES = [...ICU_CODES, ...SEMI_ICU_CODES] as const;
-
-const TABS = [
-  { key: "semi", label: "semi ICU", codes: SEMI_ICU_CODES as readonly string[] },
-  { key: "icu", label: "ICU", codes: ICU_CODES as readonly string[] },
-] as const;
-type TabKey = "icu" | "semi";
-
-const DATE_RANGE_LABEL = "ช่วงวันที่";
 const DEFAULT_START_DATE = "2026-01-01";
+const DATE_RANGE_LABEL = "ช่วงวันที่";
+
+type TabKey = "semi01" | "semi02" | "semi03" | "semi_wrong" | "icu";
+
+type TabDef = {
+  key: TabKey;
+  label: string;
+  digit4: string;
+  digit56: string[] | null;
+  isWrong?: boolean;
+  badgeColor?: string;
+};
+
+const TABS: TabDef[] = [
+  { key: "semi01", label: "SEMI ICU ทั่วไป",          digit4: "3", digit56: ["01"], badgeColor: "bg-blue-100 text-blue-800" },
+  { key: "semi02", label: "SEMI ICU ห้องความดันลบ",   digit4: "3", digit56: ["02"], badgeColor: "bg-purple-100 text-purple-800" },
+  { key: "semi03", label: "SEMI ICU อื่นๆ",            digit4: "3", digit56: ["03"], badgeColor: "bg-teal-100 text-teal-800" },
+  { key: "semi_wrong", label: "SEMI ICU map ผิด",      digit4: "3", digit56: null, isWrong: true, badgeColor: "bg-red-100 text-red-800" },
+  { key: "icu",   label: "ICU",                        digit4: "2", digit56: null, badgeColor: "bg-green-100 text-green-800" },
+];
+
+const VALID_SEMI_D56 = ["01", "02", "03"];
 
 type BedOccupancyRow = {
   hoscode: string;
@@ -27,6 +38,7 @@ type BedOccupancyRow = {
   sp_level: string | null;
   export_code: string;
   bed_type_name: string | null;
+  bed_type_mapped: boolean;
   total_beds: number;
   days_in_period: number;
   available_bed_days: number;
@@ -41,23 +53,9 @@ function fmtNumber(n: number, digits = 0) {
   }).format(n);
 }
 
-function isDate(value: string | undefined): value is string {
-  if (!value) return false;
-  return !Number.isNaN(Date.parse(value));
-}
-
-
 function formatBedCode(code: string | null) {
   if (!code) return "-";
   return code.slice(-6);
-}
-
-function isSemiIcuAbnormal(code: string | null): boolean {
-  if (!code) return false;
-  const last6 = code.slice(-6);
-  if (last6[3] !== "3") return false;
-  const d56 = last6.slice(4, 6);
-  return !["01", "02", "03"].includes(d56);
 }
 
 function ensureDateString(value: string | Date | null | undefined) {
@@ -66,21 +64,32 @@ function ensureDateString(value: string | Date | null | undefined) {
   return value.toISOString().slice(0, 10);
 }
 
+function buildWhereClause(tab: TabDef): string {
+  if (tab.isWrong) {
+    return `substring(export_code, 4, 1) = '3'
+            AND substring(export_code, 5, 2) NOT IN ('01','02','03')`;
+  }
+  if (tab.digit56) {
+    return `substring(export_code, 4, 1) = '${tab.digit4}'
+            AND substring(export_code, 5, 2) = ANY(ARRAY[${tab.digit56.map((s) => `'${s}'`).join(",")}])`;
+  }
+  return `substring(export_code, 4, 1) = '${tab.digit4}'`;
+}
+
 export default async function Page({
   searchParams,
 }: {
   searchParams?: { start?: string; end?: string; tab?: string } | Promise<{ start?: string; end?: string; tab?: string }>;
 }) {
   const sp = await Promise.resolve(searchParams ?? {});
-  const selectedTab: TabKey = sp.tab === "icu" ? "icu" : "semi";
-  const activeTabCodes = TABS.find((t) => t.key === selectedTab)!.codes;
+  const tabKeys: TabKey[] = ["semi01", "semi02", "semi03", "semi_wrong", "icu"];
+  const selectedTab: TabKey = tabKeys.includes(sp.tab as TabKey) ? (sp.tab as TabKey) : "semi01";
+  const activeTab = TABS.find((t) => t.key === selectedTab)!;
+  const whereClause = buildWhereClause(activeTab);
+
   const dateBounds = await dbQuery<{ min_date: string | Date | null; max_date: string | Date | null }>(
-    `
-      select
-        min(calc_start)::date as min_date,
-        max(calc_end)::date as max_date
-      from public.transform_sync_bed_an_occupancy;
-      `,
+    `SELECT min(calc_start)::date AS min_date, max(calc_end)::date AS max_date
+     FROM public.transform_sync_bed_an_occupancy`,
   ).then((r) => r[0]);
 
   const fallbackStart = DEFAULT_START_DATE;
@@ -90,77 +99,66 @@ export default async function Page({
   const minDate = ensureDateString(dateBounds?.min_date);
   const maxDate = ensureDateString(dateBounds?.max_date);
 
-  const bedTypeParams = activeTabCodes;
-
   const [rows, meta] = await Promise.all([
     dbQuery<BedOccupancyRow>(
       `
-      with bed_counts as (
-        select hoscode, export_code, count(*)::int as total_beds
-        from public.transform_sync_bed_type_all
-        where right(export_code, 3) = any($3::text[])
-        group by hoscode, export_code
+      WITH bed_counts AS (
+        SELECT hoscode, export_code, count(*)::int AS total_beds
+        FROM public.transform_sync_bed_type_all
+        WHERE ${whereClause}
+        GROUP BY hoscode, export_code
       ),
-      occ_counts as (
-        select
+      occ_counts AS (
+        SELECT
           hoscode,
           export_code,
-          sum(
-            greatest(
-              0,
-              (least(calc_end, $2::date) - greatest(calc_start, $1::date) + 1)
-            )
-          )::int as total_patient_days
-        from public.transform_sync_bed_an_occupancy
-        where calc_end >= $1::date
-          and calc_start <= $2::date
-          and right(export_code, 3) = any($3::text[])
-        group by hoscode, export_code
+          sum(greatest(0, (least(calc_end, $2::date) - greatest(calc_start, $1::date) + 1)))::int AS total_patient_days
+        FROM public.transform_sync_bed_an_occupancy
+        WHERE calc_end >= $1::date
+          AND calc_start <= $2::date
+          AND ${whereClause}
+        GROUP BY hoscode, export_code
       ),
-      all_combos as (
-        select h.hoscode, h.hosname, h.hosname_short, h.sp_level, bc.export_code
-        from public.c_hos h
-        cross join (select distinct export_code from bed_counts) bc
+      all_export_codes AS (
+        SELECT DISTINCT export_code FROM bed_counts
+        UNION
+        SELECT DISTINCT export_code FROM occ_counts
       ),
-      detail_rows as (
-        select
+      all_combos AS (
+        SELECT h.hoscode, h.hosname, h.hosname_short, h.sp_level, ae.export_code
+        FROM public.c_hos h
+        CROSS JOIN all_export_codes ae
+      ),
+      detail_rows AS (
+        SELECT
           ac.hoscode,
           ac.hosname,
           ac.hosname_short,
           ac.sp_level,
           ac.export_code,
-          cb.name as bed_type_name,
-          coalesce(bc.total_beds, 0)::int as total_beds,
-          ($2::date - $1::date + 1)::int as days_in_period,
-          (coalesce(bc.total_beds, 0) * ($2::date - $1::date + 1))::int as available_bed_days,
-          coalesce(oc.total_patient_days, 0)::int as total_patient_days,
+          cb.name AS bed_type_name,
+          (cb.code IS NOT NULL) AS bed_type_mapped,
+          coalesce(bc.total_beds, 0)::int AS total_beds,
+          ($2::date - $1::date + 1)::int AS days_in_period,
+          (coalesce(bc.total_beds, 0) * ($2::date - $1::date + 1))::int AS available_bed_days,
+          coalesce(oc.total_patient_days, 0)::int AS total_patient_days,
           round(
             coalesce(oc.total_patient_days, 0) * 100.0
             / nullif(coalesce(bc.total_beds, 0) * ($2::date - $1::date + 1), 0),
             2
-          ) as occupancy_rate_pct
-        from all_combos ac
-        left join bed_counts bc on bc.hoscode = ac.hoscode and bc.export_code = ac.export_code
-        left join occ_counts oc on oc.hoscode = ac.hoscode and oc.export_code = ac.export_code
-        left join public.c_bed_type_std cb on cb.code = right(ac.export_code, 3)
+          ) AS occupancy_rate_pct
+        FROM all_combos ac
+        LEFT JOIN bed_counts bc ON bc.hoscode = ac.hoscode AND bc.export_code = ac.export_code
+        LEFT JOIN occ_counts oc ON oc.hoscode = ac.hoscode AND oc.export_code = ac.export_code
+        LEFT JOIN public.c_bed_type_std cb ON cb.code = right(ac.export_code, 3)
       )
-      select * from detail_rows
-      order by
-        (total_beds > 0) desc,
-        hosname asc nulls last, hoscode asc, export_code asc;
+      SELECT * FROM detail_rows
+      ORDER BY (total_beds > 0) DESC, hosname ASC NULLS LAST, hoscode ASC, export_code ASC
       `,
-      [selectedStart, selectedEnd, bedTypeParams],
+      [selectedStart, selectedEnd],
     ),
-    dbQuery<{ row_count: number; last_update: string | null }>(
-      `
-      select
-        (select count(*)::int from (
-          select * from public.transform_sync_bed_type_all
-          where right(export_code, 3) = any($1::text[])
-        ) s) as row_count,
-        (select max(d_update)::text from public.transform_sync_bed_an_occupancy) as last_update;
-      `,
-      [bedTypeParams],
+    dbQuery<{ last_update: string | null }>(
+      `SELECT max(d_update)::text AS last_update FROM public.transform_sync_bed_an_occupancy`,
     ).then((r) => r[0]),
   ]);
 
@@ -176,7 +174,7 @@ export default async function Page({
       </div>
 
       {/* Tabs */}
-      <div className="mt-4 flex gap-1 border-b border-zinc-200/70 dark:border-white/10">
+      <div className="mt-4 flex flex-wrap gap-1 border-b border-zinc-200/70 dark:border-white/10">
         {TABS.map((tab) => {
           const active = tab.key === selectedTab;
           const params = new URLSearchParams({ start: selectedStart, end: selectedEnd, tab: tab.key });
@@ -184,13 +182,15 @@ export default async function Page({
             <a
               key={tab.key}
               href={`?${params.toString()}`}
-              className={`px-4 py-2 text-xs font-medium rounded-t-lg border border-b-0 transition-colors ${
+              className={`px-3 py-2 text-xs font-medium rounded-t-lg border border-b-0 transition-colors whitespace-nowrap ${
                 active
                   ? "border-zinc-200/70 bg-white text-zinc-900 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-50"
-                  : "border-transparent text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                  : tab.isWrong
+                    ? "border-transparent text-red-500 hover:text-red-700 dark:text-red-400"
+                    : "border-transparent text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
               }`}
             >
-              {tab.label}
+              {tab.isWrong ? `⚠ ${tab.label}` : tab.label}
             </a>
           );
         })}
@@ -201,51 +201,62 @@ export default async function Page({
           <div className="whitespace-nowrap">
             {DATE_RANGE_LABEL}: {selectedStart} ถึง {selectedEnd} • อัปเดตเมื่อ: {meta?.last_update ?? "-"}
           </div>
+          <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${activeTab.badgeColor ?? ""}`}>
+            {activeTab.label}
+          </span>
         </div>
 
         <div className="overflow-auto bg-white dark:bg-zinc-950">
           <table className="min-w-[1000px] w-full border-separate border-spacing-0 text-xs">
             <thead className="sticky top-0 z-10 bg-white/90 backdrop-blur dark:bg-zinc-950/90">
               <tr>
-                <Th className="w-[72px]">ลำดับ</Th>
-                <Th className="w-[260px]">ชื่อ รพ.</Th>
-                <Th className="w-[160px]">รหัสเตียง 6 หลัก</Th>
+                <Th className="w-[60px]">ลำดับ</Th>
+                <Th className="w-[240px]">ชื่อ รพ.</Th>
+                <Th className="w-[140px]">รหัสเตียง 6 หลัก</Th>
                 <Th className="w-[220px]">ชื่อเตียง</Th>
-                <Th className="w-[120px] text-right">จำนวนเตียง</Th>
-                <Th className="w-[130px] text-right">Bed-days</Th>
-                <Th className="w-[140px] text-right">Patient-days</Th>
-                <Th className="w-[120px] text-right">Occupancy %</Th>
+                <Th className="w-[100px] text-right">จำนวนเตียง</Th>
+                <Th className="w-[110px] text-right">Bed-days</Th>
+                <Th className="w-[120px] text-right">Occup-days</Th>
+                <Th className="w-[110px] text-right">Occup Rate</Th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r, idx) => {
-                const abnormal = isSemiIcuAbnormal(r.export_code);
+                const isWrongRow = activeTab.isWrong || !r.bed_type_mapped;
                 return (
-                <tr key={`${r.hoscode}-${r.export_code}-${idx}`} className={abnormal ? "bg-red-50 dark:bg-red-950/40" : ""}>
-                  <Td className="text-right tabular-nums">
-                    {idx + 1}
-                  </Td>
-                  <Td>
-                    <span className="inline-flex items-center gap-1.5">
-                      <SpLevelBadge level={r.sp_level} />
-                      {r.hosname_short?.trim() || r.hosname || r.hoscode}
-                    </span>
-                  </Td>
-                  <Td>{formatBedCode(r.export_code)}</Td>
-                  <Td>{r.bed_type_name ?? "-"}</Td>
-                  <Td className="text-right tabular-nums">{r.total_beds > 0 ? fmtNumber(r.total_beds) : "-"}</Td>
-                  <Td className="text-right tabular-nums">{r.available_bed_days > 0 ? fmtNumber(r.available_bed_days) : "-"}</Td>
-                  <Td className="text-right tabular-nums">{r.total_patient_days > 0 ? fmtNumber(r.total_patient_days) : "-"}</Td>
-                  <Td className="text-right tabular-nums font-bold">
-                    {r.occupancy_rate_pct != null ? `${fmtNumber(r.occupancy_rate_pct, 2)}%` : "-"}
-                  </Td>
-                </tr>
+                  <tr
+                    key={`${r.hoscode}-${r.export_code}-${idx}`}
+                    className={isWrongRow ? "bg-red-50 dark:bg-red-950/40" : ""}
+                  >
+                    <Td className="text-right tabular-nums">{idx + 1}</Td>
+                    <Td>
+                      <span className="inline-flex items-center gap-1.5">
+                        <SpLevelBadge level={r.sp_level} />
+                        {r.hosname_short?.trim() || r.hosname || r.hoscode}
+                      </span>
+                    </Td>
+                    <Td className="font-mono">{formatBedCode(r.export_code)}</Td>
+                    <Td>
+                      {!r.bed_type_mapped
+                        ? <span className="inline-flex items-center gap-1 font-semibold text-red-600 dark:text-red-400">
+                            ⚠ map ผิด <span className="font-mono text-[11px]">({formatBedCode(r.export_code).slice(-3)})</span>
+                          </span>
+                        : r.bed_type_name ?? "-"}
+                    </Td>
+                    <Td className="text-right tabular-nums">{r.total_beds > 0 ? fmtNumber(r.total_beds) : "-"}</Td>
+                    <Td className="text-right tabular-nums">{r.available_bed_days > 0 ? fmtNumber(r.available_bed_days) : "-"}</Td>
+                    <Td className="text-right tabular-nums">{r.total_patient_days > 0 ? fmtNumber(r.total_patient_days) : "-"}</Td>
+                    <Td className="text-right tabular-nums font-bold">
+                      {r.occupancy_rate_pct != null ? `${fmtNumber(r.occupancy_rate_pct, 2)}%` : "-"}
+                    </Td>
+                  </tr>
                 );
               })}
             </tbody>
           </table>
         </div>
         <div className="border-t border-zinc-200/70 bg-white px-3 py-1.5 text-right text-[11px] text-zinc-400 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-500">
+          แสดง {rows.filter(r => r.total_beds > 0 || r.total_patient_days > 0).length} รพ. ที่มีข้อมูล •
           ข้อมูลจากตาราง: <span className="font-mono">transform_sync_bed_type_all / transform_sync_bed_an_occupancy</span>
         </div>
       </div>
