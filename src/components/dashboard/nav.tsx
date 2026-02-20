@@ -71,18 +71,13 @@ export const DASHBOARD_NAV: NavGroup[] = [
         href: "/ICU/critical-mortality",
       },
       {
-        id: "realtime",
-        label: "จำนวนเคส semi icu → icu (real time)",
-        href: "/ICU/semi-icu-realtime",
-      },
-      {
         id: "icu-deaths",
-        label: "การตายใน ICU / semi ICU (Top 10 + Rate)",
+        label: "การตายใน ICU / semi ICU (Top 10)",
         href: "/ICU/icu-death-analysis",
       },
       {
         id: "ward-deaths",
-        label: "การตายใน ward ธรรมดา (Top 10 + Rate)",
+        label: "การตายใน ward ธรรมดา (Top 10)",
         href: "/ICU/ward-death-analysis",
       },
     ],
