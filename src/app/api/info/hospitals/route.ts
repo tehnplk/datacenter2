@@ -7,7 +7,7 @@ type HospitalRow = {
   hoscode: string;
   hosname: string;
   hosname_short: string | null;
-  sp_level: string | null;
+  size_level: string | null;
   gps: string | null;
   amp_code: string | null;
   beds: number | null;
@@ -15,7 +15,7 @@ type HospitalRow = {
 
 export async function GET() {
   const rows = await dbQuery<HospitalRow>(
-    `SELECT hoscode, hosname, hosname_short, sp_level, gps, amp_code, beds
+    `SELECT hoscode, hosname, hosname_short, size_level, gps, amp_code, beds
      FROM public.c_hos
      ORDER BY amp_code ASC NULLS LAST, hoscode ASC`,
   );

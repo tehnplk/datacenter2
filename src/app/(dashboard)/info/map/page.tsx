@@ -7,7 +7,7 @@ type Hospital = {
   hoscode: string;
   hosname: string;
   hosname_short: string | null;
-  sp_level: string | null;
+  size_level: string | null;
   gps: string | null;
   amp_code: string | null;
   beds: number | null;
@@ -103,7 +103,7 @@ export default function HospitalMapPage() {
       const [lat, lng] = hos.gps.split(",").map(Number);
       if (isNaN(lat) || isNaN(lng)) return;
 
-      const color = getLevelColor(hos.sp_level);
+      const color = getLevelColor(hos.size_level);
       const svgStr = redCrossSVG(color);
       const iconUrl = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgStr)));
 
@@ -114,8 +114,8 @@ export default function HospitalMapPage() {
         popupAnchor: [0, -20],
       });
 
-      const levelBadge = hos.sp_level
-        ? `<span style="background:${color};color:#fff;padding:1px 5px;border-radius:10px;font-size:10px;font-weight:700;">${hos.sp_level}</span>`
+      const levelBadge = hos.size_level
+        ? `<span style="background:${color};color:#fff;padding:1px 5px;border-radius:10px;font-size:10px;font-weight:700;">${hos.size_level}</span>`
         : "";
 
       const marker = L.marker([lat, lng], { icon }).addTo(map);
@@ -193,7 +193,7 @@ export default function HospitalMapPage() {
                     <td className="border-b border-zinc-100 px-3 py-1.5 font-mono text-zinc-700 dark:border-zinc-800 dark:text-zinc-300">{h.hoscode}</td>
                     <td className="border-b border-zinc-100 px-3 py-1.5 whitespace-nowrap dark:border-zinc-800">{displayName}</td>
                     <td className="border-b border-zinc-100 px-3 py-1.5 text-center dark:border-zinc-800">
-                      <SpLevelBadge level={h.sp_level} />
+                      <SpLevelBadge level={h.size_level} />
                     </td>
                     <td className="border-b border-zinc-100 px-3 py-1.5 text-right tabular-nums font-medium text-zinc-700 dark:border-zinc-800 dark:text-zinc-300">
                       {h.beds != null ? h.beds.toLocaleString() : "-"}

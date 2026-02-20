@@ -23,14 +23,14 @@ type HosRow = {
   hoscode: string;
   hosname: string;
   hosname_short: string | null;
-  sp_level: string | null;
+  size_level: string | null;
 };
 
 type YearSummaryRow = {
   hoscode: string;
   hosname: string;
   hosname_short: string | null;
-  sp_level: string | null;
+  size_level: string | null;
   cases: number;
   sum_adjrw: number;
   cmi: number | null;
@@ -40,7 +40,7 @@ type YearPivotRow = {
   hoscode: string;
   hosname: string;
   hosname_short: string | null;
-  sp_level: string | null;
+  size_level: string | null;
   y: number | null;
   cases: number;
   sum_adjrw: number;
@@ -104,7 +104,7 @@ export default async function Page({
 
   const [hosList, rows, yearSummary, yearPivot, meta] = await Promise.all([
     dbQuery<HosRow>(
-      `select hoscode, hosname, hosname_short, sp_level from public.c_hos order by hosname asc;`,
+      `select hoscode, hosname, hosname_short, size_level from public.c_hos order by hosname asc;`,
     ),
     dbQuery<DrgsSumRow>(
       `
@@ -131,7 +131,7 @@ export default async function Page({
         h.hoscode,
         h.hosname,
         h.hosname_short,
-        h.sp_level,
+        h.size_level,
         coalesce(sum(s.num_pt), 0)::int as cases,
         coalesce(sum(s.sum_adjrw), 0)::float8 as sum_adjrw,
         case when sum(s.num_pt) > 0 then (sum(s.sum_adjrw) / sum(s.num_pt))::float8 else null end as cmi
@@ -150,7 +150,7 @@ export default async function Page({
         h.hoscode,
         h.hosname,
         h.hosname_short,
-        h.sp_level,
+        h.size_level,
         s.y,
         coalesce(sum(s.num_pt), 0)::int as cases,
         coalesce(sum(s.sum_adjrw), 0)::float8 as sum_adjrw,
@@ -410,7 +410,7 @@ function MonthTable({
               </td>
               <td className="border border-zinc-200 px-3 py-2 font-medium whitespace-nowrap dark:border-zinc-800">
                 <span className="inline-flex items-center gap-1.5">
-                  <SpLevelBadge level={h.sp_level} />
+                  <SpLevelBadge level={h.size_level} />
                   {displayHosName(h.hosname, h.hosname_short)}
                 </span>
               </td>
@@ -497,7 +497,7 @@ function YearTable({
               </td>
               <td className="border border-zinc-200 px-3 py-2 font-medium dark:border-zinc-800">
                 <span className="inline-flex items-center gap-1.5">
-                  <SpLevelBadge level={h.sp_level} />
+                  <SpLevelBadge level={h.size_level} />
                   <span className="block max-w-[240px] truncate" title={h.hosname}>
                     {displayHosName(h.hosname, h.hosname_short)}
                   </span>

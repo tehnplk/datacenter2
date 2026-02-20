@@ -21,7 +21,7 @@ type MortalityRow = {
   mortality_rate_pct: number | null;
 };
 
-type HosRow = { hoscode: string; hosname: string | null; hosname_short: string | null; sp_level: string | null };
+type HosRow = { hoscode: string; hosname: string | null; hosname_short: string | null; size_level: string | null };
 
 function fmt(n: number | null | undefined): string {
   if (n == null) return "-";
@@ -66,7 +66,7 @@ export default async function Page({
 
   const [hosList, rows] = await Promise.all([
     dbQuery<HosRow>(
-      `select hoscode, hosname, hosname_short, sp_level from public.c_hos order by hosname asc;`,
+      `select hoscode, hosname, hosname_short, size_level from public.c_hos order by hosname asc;`,
     ),
     dbQuery<MortalityRow>(
       `
@@ -177,7 +177,7 @@ export default async function Page({
                     <Td className="text-center tabular-nums">{idx + 1}</Td>
                     <Td className="font-medium">
                       <span className="inline-flex items-center gap-1.5">
-                        <SpLevelBadge level={h.sp_level} />
+                        <SpLevelBadge level={h.size_level} />
                         {displayName}
                       </span>
                     </Td>

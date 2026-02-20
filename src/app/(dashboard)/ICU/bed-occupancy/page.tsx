@@ -38,7 +38,7 @@ type BedOccupancyRow = {
   hoscode: string;
   hosname: string | null;
   hosname_short: string | null;
-  sp_level: string | null;
+  size_level: string | null;
   export_code: string;
   bed_type_name: string | null;
   bed_type_mapped: boolean;
@@ -128,17 +128,17 @@ export default async function Page({
         SELECT DISTINCT export_code FROM occ_counts
       ),
       all_combos AS (
-        SELECT h.hoscode, h.hosname, h.hosname_short, h.sp_level, ae.export_code
+        SELECT h.hoscode, h.hosname, h.hosname_short, h.size_level, ae.export_code
         FROM public.c_hos h
         CROSS JOIN all_export_codes ae
-        ${activeTab.excludeSpLevels?.length ? `WHERE h.sp_level NOT IN (${activeTab.excludeSpLevels.map((s) => `'${s}'`).join(",")})` : ""}
+        ${activeTab.excludeSpLevels?.length ? `WHERE h.size_level NOT IN (${activeTab.excludeSpLevels.map((s) => `'${s}'`).join(",")})` : ""}
       ),
       detail_rows AS (
         SELECT
           ac.hoscode,
           ac.hosname,
           ac.hosname_short,
-          ac.sp_level,
+          ac.size_level,
           ac.export_code,
           cb.name AS bed_type_name,
           (cb.code IS NOT NULL) AS bed_type_mapped,
@@ -239,7 +239,7 @@ export default async function Page({
                     <Td className="text-right tabular-nums">{idx + 1}</Td>
                     <Td>
                       <span className="inline-flex items-center gap-1.5">
-                        <SpLevelBadge level={r.sp_level} />
+                        <SpLevelBadge level={r.size_level} />
                         {r.hosname_short?.trim() || r.hosname || r.hoscode}
                       </span>
                     </Td>

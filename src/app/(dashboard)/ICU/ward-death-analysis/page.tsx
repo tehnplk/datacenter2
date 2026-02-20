@@ -10,7 +10,7 @@ type DeathRow = {
   hoscode: string;
   hosname: string | null;
   hosname_short: string | null;
-  sp_level: string | null;
+  size_level: string | null;
   pdx: string;
   pdx_name: string | null;
   death_count: number;
@@ -27,7 +27,7 @@ type HosRow = {
   hoscode: string;
   hosname: string | null;
   hosname_short: string | null;
-  sp_level: string | null;
+  size_level: string | null;
   total_death: number;
 };
 
@@ -85,7 +85,7 @@ export default async function Page({
       [selectedYear],
     ),
     dbQuery<DeathRow>(
-      `SELECT h.hoscode, h.hosname, h.hosname_short, h.sp_level,
+      `SELECT h.hoscode, h.hosname, h.hosname_short, h.size_level,
               d.pdx, ic.name AS pdx_name, d.death_count
        FROM public.transform_sync_normal_ward_death d
        JOIN public.c_hos h ON h.hoscode = d.hoscode
@@ -110,7 +110,7 @@ export default async function Page({
         hoscode: r.hoscode,
         hosname: r.hosname,
         hosname_short: r.hosname_short,
-        sp_level: r.sp_level,
+        size_level: r.size_level,
         total_death: 0,
         byPdx: new Map(),
       });
@@ -221,7 +221,7 @@ export default async function Page({
                         : "border-transparent text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
                     }`}
                   >
-                    <SpLevelBadge level={h.sp_level} />
+                    <SpLevelBadge level={h.size_level} />
                     {displayHosName(h.hosname, h.hosname_short)}
                     <span className="ml-1 rounded-full bg-red-100 px-1.5 py-0.5 text-[9px] font-bold text-red-600 dark:bg-red-950/50 dark:text-red-400">
                       {fmtNum(h.total_death)}

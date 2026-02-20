@@ -8,7 +8,7 @@ type WaitBedRow = {
   hoscode: string;
   hosname: string | null;
   hosname_short: string | null;
-  sp_level: string | null;
+  size_level: string | null;
   yr: number;
   yr_be: number | null;
   total_cases: number | null;
@@ -121,7 +121,7 @@ export default function WaitBedGrid({ rows }: { rows: WaitBedRow[] }) {
               <Td className="text-right tabular-nums">{idx + 1}</Td>
               <Td>
                 <span className="inline-flex items-center gap-1.5">
-                  <SpLevelBadge level={r.sp_level} />
+                  <SpLevelBadge level={r.size_level} />
                   {r.hosname_short?.trim() || r.hosname || r.hoscode}
                 </span>
               </Td>

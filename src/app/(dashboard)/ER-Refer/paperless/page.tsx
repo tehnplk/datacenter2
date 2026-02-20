@@ -21,7 +21,7 @@ type HosRow = {
   hoscode: string;
   hosname: string;
   hosname_short: string | null;
-  sp_level: string | null;
+  size_level: string | null;
 };
 
 const TH_MONTHS = [
@@ -72,7 +72,7 @@ export default async function Page({
 
   const [hosList, rows, meta] = await Promise.all([
     dbQuery<HosRow>(
-      `select hoscode, hosname, hosname_short, sp_level from public.c_hos order by hosname asc;`,
+      `select hoscode, hosname, hosname_short, size_level from public.c_hos order by hosname asc;`,
     ),
     dbQuery<PaperlessRow>(
       `
@@ -205,7 +205,7 @@ function PivotTable({
               </td>
               <td className="border border-zinc-200 px-3 py-2 font-medium whitespace-nowrap dark:border-zinc-800">
                 <span className="inline-flex items-center gap-1.5">
-                  <SpLevelBadge level={h.sp_level} />
+                  <SpLevelBadge level={h.size_level} />
                   {displayHosName(h.hosname, h.hosname_short)}
                 </span>
               </td>
