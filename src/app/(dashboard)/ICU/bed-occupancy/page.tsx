@@ -3,6 +3,7 @@ import MetricPage from "@/components/dashboard/MetricPage";
 import DateRangeSelect from "@/components/dashboard/DateRangeSelect";
 import SpLevelBadge from "@/components/dashboard/SpLevelBadge";
 import { dbQuery } from "@/lib/db";
+import BedCodeMapModal from "./BedCodeMapModal";
 
 export const dynamic = "force-dynamic";
 
@@ -169,7 +170,8 @@ export default async function Page({
       showTopCards={false}
       contentWidth="wide"
     >
-      <div className="flex flex-wrap items-center justify-end gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <BedCodeMapModal />
         <DateRangeSelect start={selectedStart} end={selectedEnd} min={minDate} max={maxDate} />
       </div>
 
