@@ -221,7 +221,11 @@ function PivotTable({
                       {r ? fmtNumber(r.moph_refer_count, 0) : "-"}
                     </td>
                     <td className="border border-zinc-200 px-2 py-2 text-right tabular-nums font-semibold dark:border-zinc-800">
-                      {r?.rate != null ? `${fmtNumber(r.rate * 100, 1)}%` : "-"}
+                      {r?.rate != null ? (
+                        r.rate >= 0.9
+                          ? <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-1.5 py-0.5 text-[10px] font-semibold text-green-700 dark:bg-green-900/40 dark:text-green-400">{fmtNumber(r.rate * 100, 1)}%</span>
+                          : `${fmtNumber(r.rate * 100, 1)}%`
+                      ) : "-"}
                     </td>
                   </React.Fragment>
                 );

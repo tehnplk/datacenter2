@@ -154,6 +154,7 @@ export default async function Page({
         LEFT JOIN public.c_bed_type_std cb ON cb.code = right(ac.export_code, 3)
       )
       SELECT * FROM detail_rows
+      WHERE NOT ${activeTab.isWrong ? "true" : "false"} OR (total_beds > 0 OR total_patient_days > 0)
       ORDER BY (total_beds > 0) DESC, hosname ASC NULLS LAST, hoscode ASC, export_code ASC
       `,
       [selectedStart, selectedEnd],
