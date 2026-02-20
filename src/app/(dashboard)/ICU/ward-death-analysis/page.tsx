@@ -73,20 +73,22 @@ export default async function Page({
 
   const [top10, rows, meta] = await Promise.all([
     dbQuery<Top10Row>(
-      `SELECT pdx, pdx_name, sum(death_count)::int AS total_death,
-              rank() OVER (ORDER BY sum(death_count) DESC)::int AS rank
-       FROM public.transform_sync_normal_ward_death
-       WHERE y = $1
-       GROUP BY pdx, pdx_name
+      `SELECT d.pdx, ic.name AS pdx_name, sum(d.death_count)::int AS total_death,
+              rank() OVER (ORDER BY sum(d.death_count) DESC)::int AS rank
+       FROM public.transform_sync_normal_ward_death d
+       LEFT JOIN public.c_icd10 ic ON ic.code = d.pdx
+       WHERE d.y = $1
+       GROUP BY d.pdx, ic.name
        ORDER BY total_death DESC
        LIMIT 10`,
       [selectedYear],
     ),
     dbQuery<DeathRow>(
       `SELECT h.hoscode, h.hosname, h.hosname_short, h.sp_level,
-              d.pdx, d.pdx_name, d.death_count
+              d.pdx, ic.name AS pdx_name, d.death_count
        FROM public.transform_sync_normal_ward_death d
        JOIN public.c_hos h ON h.hoscode = d.hoscode
+       LEFT JOIN public.c_icd10 ic ON ic.code = d.pdx
        WHERE d.y = $1
        ORDER BY h.hosname ASC, d.death_count DESC`,
       [selectedYear],
@@ -216,10 +218,10 @@ export default async function Page({
                   <tr key={h.hoscode} className="odd:bg-white even:bg-zinc-50/60 dark:odd:bg-zinc-950 dark:even:bg-zinc-900">
                     <td className={`${tdCls} text-center`}>{idx + 1}</td>
                     <td className={`${tdCls} text-left whitespace-nowrap`}>
-                      <span className="inline-flex items-center gap-1.5">
+                      <div className="flex items-start gap-1.5">
                         <SpLevelBadge level={h.sp_level} />
-                        {displayHosName(h.hosname, h.hosname_short)}
-                      </span>
+                        <div>{displayHosName(h.hosname, h.hosname_short)}</div>
+                      </div>
                     </td>
                     <td className={`${tdCls} font-bold text-red-600 dark:text-red-400`}>{fmtNum(h.total_death)}</td>
                     {top10Pdx.map((pdx) => {
