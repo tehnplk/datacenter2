@@ -52,6 +52,14 @@ function formatBedCode(code: string | null) {
   return code.slice(-6);
 }
 
+function isSemiIcuAbnormal(code: string | null): boolean {
+  if (!code) return false;
+  const last6 = code.slice(-6);
+  if (last6[3] !== "3") return false;
+  const d56 = last6.slice(4, 6);
+  return !["01", "02", "03"].includes(d56);
+}
+
 function ensureDateString(value: string | Date | null | undefined) {
   if (!value) return undefined;
   if (typeof value === "string") return value;
@@ -210,8 +218,10 @@ export default async function Page({
               </tr>
             </thead>
             <tbody>
-              {rows.map((r, idx) => (
-                <tr key={`${r.hoscode}-${r.export_code}-${idx}`}>
+              {rows.map((r, idx) => {
+                const abnormal = isSemiIcuAbnormal(r.export_code);
+                return (
+                <tr key={`${r.hoscode}-${r.export_code}-${idx}`} className={abnormal ? "bg-red-50 dark:bg-red-950/40" : ""}>
                   <Td className="text-right tabular-nums">
                     {idx + 1}
                   </Td>
@@ -230,7 +240,8 @@ export default async function Page({
                     {r.occupancy_rate_pct != null ? `${fmtNumber(r.occupancy_rate_pct, 2)}%` : "-"}
                   </Td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
