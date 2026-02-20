@@ -8,6 +8,7 @@ type Hospital = {
   hosname: string;
   hosname_short: string | null;
   size_level: string | null;
+  sap_level: string | null;
   gps: string | null;
   amp_code: string | null;
   beds: number | null;
@@ -180,7 +181,8 @@ export default function HospitalMapPage() {
                 <th className="w-12 border-b border-zinc-200 px-3 py-2 text-right font-semibold text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">ลำดับ</th>
                 <th className="w-24 border-b border-zinc-200 px-3 py-2 text-left font-semibold text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">รหัส รพ.</th>
                 <th className="border-b border-zinc-200 px-3 py-2 text-left font-semibold text-zinc-600 whitespace-nowrap dark:border-zinc-700 dark:text-zinc-300">ชื่อ รพ.</th>
-                <th className="w-20 border-b border-zinc-200 px-3 py-2 text-center font-semibold text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">ระดับ</th>
+                <th className="w-20 border-b border-zinc-200 px-3 py-2 text-center font-semibold text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">SIZE</th>
+                <th className="w-20 border-b border-zinc-200 px-3 py-2 text-center font-semibold text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">SAP</th>
                 <th className="w-20 border-b border-zinc-200 px-3 py-2 text-right font-semibold text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">เตียง</th>
               </tr>
             </thead>
@@ -194,6 +196,9 @@ export default function HospitalMapPage() {
                     <td className="border-b border-zinc-100 px-3 py-1.5 whitespace-nowrap dark:border-zinc-800">{displayName}</td>
                     <td className="border-b border-zinc-100 px-3 py-1.5 text-center dark:border-zinc-800">
                       <SpLevelBadge level={h.size_level} />
+                    </td>
+                    <td className="border-b border-zinc-100 px-3 py-1.5 text-center dark:border-zinc-800">
+                      {h.sap_level ? <span className="inline-block rounded px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">{h.sap_level}</span> : <span className="text-zinc-300">-</span>}
                     </td>
                     <td className="border-b border-zinc-100 px-3 py-1.5 text-right tabular-nums font-medium text-zinc-700 dark:border-zinc-800 dark:text-zinc-300">
                       {h.beds != null ? h.beds.toLocaleString() : "-"}
