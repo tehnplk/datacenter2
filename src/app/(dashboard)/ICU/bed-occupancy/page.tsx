@@ -20,14 +20,16 @@ type TabDef = {
   digit56: string[] | null;
   isWrong?: boolean;
   badgeColor?: string;
+  excludeHoscodes?: string[];
+  filterBedDays?: boolean;
 };
 
 const TABS: TabDef[] = [
-  { key: "semi01", label: "SEMI ICU ทั่วไป",          digit4: "3", digit56: ["01"], badgeColor: "bg-blue-100 text-blue-800" },
+  { key: "semi01", label: "SEMI ICU ทั่วไป",          digit4: "3", digit56: ["01"], badgeColor: "bg-blue-100 text-blue-800", excludeHoscodes: ["10676"] },
   { key: "semi02", label: "SEMI ICU ห้องความดันลบ",   digit4: "3", digit56: ["02"], badgeColor: "bg-purple-100 text-purple-800" },
   { key: "semi03", label: "SEMI ICU อื่นๆ",            digit4: "3", digit56: ["03"], badgeColor: "bg-teal-100 text-teal-800" },
   { key: "semi_wrong", label: "SEMI ICU map ผิด",      digit4: "3", digit56: null, isWrong: true, badgeColor: "bg-red-100 text-red-800" },
-  { key: "icu",   label: "ICU",                        digit4: "2", digit56: null, badgeColor: "bg-green-100 text-green-800" },
+  { key: "icu",   label: "ICU",                        digit4: "2", digit56: null, badgeColor: "bg-green-100 text-green-800", filterBedDays: true },
 ];
 
 const VALID_SEMI_D56 = ["01", "02", "03"];
@@ -129,6 +131,7 @@ export default async function Page({
         SELECT h.hoscode, h.hosname, h.hosname_short, h.sp_level, ae.export_code
         FROM public.c_hos h
         CROSS JOIN all_export_codes ae
+        ${activeTab.excludeHoscodes?.length ? `WHERE h.hoscode NOT IN (${activeTab.excludeHoscodes.map((c) => `'${c}'`).join(",")})` : ""}
       ),
       detail_rows AS (
         SELECT
@@ -154,7 +157,9 @@ export default async function Page({
         LEFT JOIN public.c_bed_type_std cb ON cb.code = right(ac.export_code, 3)
       )
       SELECT * FROM detail_rows
-      WHERE NOT ${activeTab.isWrong ? "true" : "false"} OR (total_beds > 0 OR total_patient_days > 0)
+      WHERE
+        (NOT ${activeTab.isWrong ? "true" : "false"} OR (total_beds > 0 OR total_patient_days > 0))
+        AND (NOT ${activeTab.filterBedDays ? "true" : "false"} OR total_beds > 0)
       ORDER BY (total_beds > 0) DESC, hosname ASC NULLS LAST, hoscode ASC, export_code ASC
       `,
       [selectedStart, selectedEnd],
