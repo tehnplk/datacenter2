@@ -1,12 +1,16 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import SpLevelBadge from "@/components/dashboard/SpLevelBadge";
 
 type Hospital = {
   hoscode: string;
   hosname: string;
+  hosname_short: string | null;
   sp_level: string | null;
   gps: string | null;
+  amp_code: string | null;
+  beds: number | null;
 };
 
 const SP_LEVEL_COLOR: Record<string, string> = {
@@ -141,12 +145,12 @@ export default function HospitalMapPage() {
   }, [leafletReady, loading, hospitals]);
 
   return (
-    <div className="flex flex-col" style={{ height: "calc(100vh - 66px)" }}>
+    <div className="flex flex-col">
+      {/* Header */}
       <div className="flex items-center gap-3 border-b border-green-200 bg-white px-5 py-3 dark:border-green-800 dark:bg-green-900">
-        <span className="text-xl">🗺️</span>
+        <span className="text-xl">🏥</span>
         <div>
-          <div className="font-bold text-green-900 dark:text-green-50">แผนที่โรงพยาบาล จ.พิษณุโลก</div>
-          <div className="text-xs text-green-600 dark:text-green-300">Hospital Map — Phitsanulok Province</div>
+          <div className="font-bold text-green-900 dark:text-green-50">รายชื่อโรงพยาบาลในสังกัด</div>
         </div>
         <div className="ml-auto flex flex-wrap gap-2">
           {Object.entries(SP_LEVEL_COLOR).map(([lvl, col]) => (
@@ -162,12 +166,48 @@ export default function HospitalMapPage() {
       </div>
 
       {loading && (
-        <div className="flex flex-1 items-center justify-center text-green-700 dark:text-green-300">
+        <div className="flex items-center justify-center py-10 text-green-700 dark:text-green-300">
           กำลังโหลดข้อมูล...
         </div>
       )}
 
-      <div style={{ flex: 1, display: loading ? "none" : "block", padding: "15px" }}>
+      {/* Hospital Grid */}
+      {!loading && (
+        <div className="bg-white dark:bg-zinc-950">
+          <table className="border-separate border-spacing-0 text-xs">
+            <thead className="sticky top-0 z-10 bg-zinc-50 dark:bg-zinc-900">
+              <tr>
+                <th className="w-12 border-b border-zinc-200 px-3 py-2 text-right font-semibold text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">ลำดับ</th>
+                <th className="w-24 border-b border-zinc-200 px-3 py-2 text-left font-semibold text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">รหัส รพ.</th>
+                <th className="border-b border-zinc-200 px-3 py-2 text-left font-semibold text-zinc-600 whitespace-nowrap dark:border-zinc-700 dark:text-zinc-300">ชื่อ รพ.</th>
+                <th className="w-20 border-b border-zinc-200 px-3 py-2 text-center font-semibold text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">ระดับ</th>
+                <th className="w-20 border-b border-zinc-200 px-3 py-2 text-right font-semibold text-zinc-600 dark:border-zinc-700 dark:text-zinc-300">เตียง</th>
+              </tr>
+            </thead>
+            <tbody>
+              {hospitals.map((h, idx) => {
+                const displayName = h.hosname_short?.trim() || h.hosname;
+                return (
+                  <tr key={h.hoscode} className="hover:bg-zinc-50 dark:hover:bg-zinc-900/40">
+                    <td className="border-b border-zinc-100 px-3 py-1.5 text-right tabular-nums text-zinc-500 dark:border-zinc-800">{idx + 1}</td>
+                    <td className="border-b border-zinc-100 px-3 py-1.5 font-mono text-zinc-700 dark:border-zinc-800 dark:text-zinc-300">{h.hoscode}</td>
+                    <td className="border-b border-zinc-100 px-3 py-1.5 whitespace-nowrap dark:border-zinc-800">{displayName}</td>
+                    <td className="border-b border-zinc-100 px-3 py-1.5 text-center dark:border-zinc-800">
+                      <SpLevelBadge level={h.sp_level} />
+                    </td>
+                    <td className="border-b border-zinc-100 px-3 py-1.5 text-right tabular-nums font-medium text-zinc-700 dark:border-zinc-800 dark:text-zinc-300">
+                      {h.beds != null ? h.beds.toLocaleString() : "-"}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Map */}
+      <div style={{ height: "480px", display: loading ? "none" : "block", padding: "15px" }}>
         <div ref={mapRef} style={{ height: "100%", borderRadius: 8, overflow: "hidden" }} />
       </div>
 
