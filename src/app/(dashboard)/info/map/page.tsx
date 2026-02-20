@@ -198,7 +198,7 @@ export default function HospitalMapPage() {
                       <SpLevelBadge level={h.size_level} />
                     </td>
                     <td className="border-b border-zinc-100 px-3 py-1.5 text-center dark:border-zinc-800">
-                      {h.sap_level ? <span className="inline-block rounded px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">{h.sap_level}</span> : <span className="text-zinc-300">-</span>}
+                      <SapBadge level={h.sap_level} />
                     </td>
                     <td className="border-b border-zinc-100 px-3 py-1.5 text-right tabular-nums font-medium text-zinc-700 dark:border-zinc-800 dark:text-zinc-300">
                       {h.beds != null ? h.beds.toLocaleString() : "-"}
@@ -229,5 +229,20 @@ export default function HospitalMapPage() {
         .hos-label::before { display: none !important; }
       `}</style>
     </div>
+  );
+}
+
+function SapBadge({ level }: { level: string | null }) {
+  if (!level) return <span className="text-zinc-300 dark:text-zinc-600">-</span>;
+  const cls =
+    level === "P+"
+      ? "bg-red-500 text-white"
+      : level === "S+"
+      ? "bg-blue-500 text-white"
+      : "bg-green-500 text-white";
+  return (
+    <span className={`inline-block rounded px-1 py-0.5 text-[8px] font-bold ${cls}`}>
+      {level}
+    </span>
   );
 }
