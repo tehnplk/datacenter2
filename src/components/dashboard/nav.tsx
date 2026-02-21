@@ -100,23 +100,6 @@ export const DASHBOARD_NAV: NavGroup[] = [
     ],
   },
   {
-    id: "phama",
-    label: "Phama",
-    icon: <Pill className="h-4 w-4" />,
-    items: [
-      {
-        id: "moph-phr",
-        label: "เชื่อมโยงข้อมูลยาผ่าน Moph-PHR",
-        href: "/Phama/moph-phr-linkage",
-      },
-      {
-        id: "metformin",
-        label: "ความปลอดภัย Metformin (MALA Prevention)",
-        href: "/Phama/metformin-safety",
-      },
-    ],
-  },
-  {
     id: "beds",
     label: "Beds",
     icon: <ClipboardList className="h-4 w-4" />,
@@ -130,6 +113,23 @@ export const DASHBOARD_NAV: NavGroup[] = [
         id: "bed-summary",
         label: "อัตราครองเตียง",
         href: "/Beds/bed-summary",
+      },
+    ],
+  },
+  {
+    id: "phama",
+    label: "Phama",
+    icon: <Pill className="h-4 w-4" />,
+    items: [
+      {
+        id: "moph-phr",
+        label: "เชื่อมโยงข้อมูลยาผ่าน Moph-PHR",
+        href: "/Phama/moph-phr-linkage",
+      },
+      {
+        id: "metformin",
+        label: "ความปลอดภัย Metformin (MALA Prevention)",
+        href: "/Phama/metformin-safety",
       },
     ],
   },
