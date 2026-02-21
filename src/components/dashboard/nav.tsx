@@ -122,6 +122,11 @@ export const DASHBOARD_NAV: NavGroup[] = [
     icon: <ClipboardList className="h-4 w-4" />,
     items: [
       {
+        id: "bed-count",
+        label: "จำนวนเตียง",
+        href: "/Beds/bed-count",
+      },
+      {
         id: "bed-summary",
         label: "อัตราครองเตียง",
         href: "/Beds/bed-summary",
