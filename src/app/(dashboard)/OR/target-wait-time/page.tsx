@@ -148,10 +148,13 @@ export default async function Page({
             <table className="w-full max-w-4xl border-separate border-spacing-0 text-xs">
               <thead className="sticky top-0 z-10 bg-white/90 backdrop-blur dark:bg-zinc-950/90">
                 <tr>
-                  <Th className="w-10 text-center">ลำดับ</Th>
-                  <Th className="text-left">โรงพยาบาล</Th>
-                  <Th className="w-28 text-right">นัดหมาย</Th>
-                  <Th className="w-28 text-right font-bold text-zinc-700 dark:text-zinc-100">เฉลี่ย (วัน)</Th>
+                  <Th className="w-10 text-center" rowSpan={2}>ลำดับ</Th>
+                  <Th className="text-left" rowSpan={2}>โรงพยาบาล</Th>
+                  <Th className="w-28 text-right" rowSpan={2}>นัดหมาย</Th>
+                  <Th className="text-center border-l border-zinc-200/70 dark:border-white/10" colSpan={4}>ระยะเวลารอคอย</Th>
+                </tr>
+                <tr>
+                  <Th className="w-28 text-right font-bold text-zinc-700 border-l border-zinc-200/70 dark:text-zinc-100 dark:border-white/10">เฉลี่ย (วัน)</Th>
                   <Th className="w-28 text-right">เฉลี่ย (สัปดาห์)</Th>
                   <Th className="w-24 text-right">น้อยสุด</Th>
                   <Th className="w-24 text-right">มากสุด</Th>
