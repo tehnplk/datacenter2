@@ -176,14 +176,15 @@ export default async function Page({
                   <Th className="w-8 text-center" rowSpan={2}>ลำดับ</Th>
                   <Th className="text-left" rowSpan={2}>โรงพยาบาล</Th>
                   {TH_MONTHS.map((m) => (
-                    <Th key={m} className="text-center w-16 border-l border-zinc-200/70 dark:border-white/10" colSpan={2}>{m}</Th>
+                    <Th key={m} className="text-center border-l border-zinc-200/70 dark:border-white/10" colSpan={3}>{m}</Th>
                   ))}
                 </tr>
                 <tr>
                   {TH_MONTHS.map((m) => (
                     <React.Fragment key={m}>
-                      <Th className="text-right w-12 border-l border-zinc-200/70 dark:border-white/10 font-normal text-zinc-400">วันนอน</Th>
-                      <Th className="text-right w-12 font-bold text-zinc-600 dark:text-zinc-200">Occ%</Th>
+                      <Th className="text-right w-14 border-l border-zinc-200/70 dark:border-white/10 font-normal text-zinc-400">Bed Days</Th>
+                      <Th className="text-right w-14 font-normal text-zinc-400">Occup Days</Th>
+                      <Th className="text-right w-12 font-bold text-zinc-600 dark:text-zinc-200">Rate</Th>
                     </React.Fragment>
                   ))}
                 </tr>
@@ -209,6 +210,9 @@ export default async function Page({
                         return (
                           <React.Fragment key={m}>
                             <Td className="text-right tabular-nums border-l border-zinc-200/70 dark:border-white/10 text-zinc-500">
+                              {availDays != null ? availDays.toLocaleString("th-TH") : "-"}
+                            </Td>
+                            <Td className="text-right tabular-nums text-zinc-500">
                               {d ? d.patient_days.toLocaleString("th-TH") : "-"}
                             </Td>
                             <Td className={`text-right tabular-nums ${pctColor(pct)}`}>
