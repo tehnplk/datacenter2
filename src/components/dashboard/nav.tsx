@@ -123,7 +123,7 @@ export const DASHBOARD_NAV: NavGroup[] = [
     items: [
       {
         id: "bed-summary",
-        label: "เตียง: รวม/ชายหญิง/ทั่วไป/พิเศษ/ICU/semi + ครองเตียง",
+        label: "อัตราครองเตียง",
         href: "/Beds/bed-summary",
       },
     ],

@@ -150,7 +150,7 @@ export default async function Page({
                     : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
                 }`}
               >
-                {g} = {BED_GROUPS[g]}
+                {BED_GROUPS[g]}
               </a>
             );
           })}
@@ -225,7 +225,7 @@ export default async function Page({
           )}
         </div>
         <div className="border-t border-zinc-200/70 bg-white px-3 py-1.5 text-right text-[11px] text-zinc-400 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-500">
-          ข้อมูลจากตาราง: <span className="font-mono">transform_sync_bed_an_occupancy</span>
+          ข้อมูลจากตาราง: <span className="font-mono">transform_sync_bed_an_occupancy</span>, <span className="font-mono">transform_sync_bed_type_all</span>
         </div>
       </div>
     </MetricPage>
