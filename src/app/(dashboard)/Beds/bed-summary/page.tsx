@@ -175,6 +175,7 @@ export default async function Page({
                 <tr>
                   <Th className="w-8 text-center" rowSpan={2}>ลำดับ</Th>
                   <Th className="text-left" rowSpan={2}>โรงพยาบาล</Th>
+                  <Th className="w-14 text-right border-r border-zinc-200/70 dark:border-white/10" rowSpan={2}>เตียง</Th>
                   {TH_MONTHS.map((m) => (
                     <Th key={m} className="text-center border-l border-zinc-200/70 dark:border-white/10" colSpan={3}>{m}</Th>
                   ))}
@@ -200,6 +201,9 @@ export default async function Page({
                           <SpLevelBadge level={h.size_level} />
                           {displayHosName(h.hosname, h.hosname_short)}
                         </span>
+                      </Td>
+                      <Td className="text-right tabular-nums font-semibold text-zinc-700 dark:text-zinc-200 border-r border-zinc-200/70 dark:border-white/10">
+                        {(() => { const first = [...byMonth.values()][0]; return first ? first.bed_count.toLocaleString("th-TH") : "-"; })()}
                       </Td>
                       {TH_MONTHS.map((_, mi) => {
                         const m = mi + 1;
