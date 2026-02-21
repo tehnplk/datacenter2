@@ -117,14 +117,14 @@ export const DASHBOARD_NAV: NavGroup[] = [
     ],
   },
   {
-    id: "erp",
-    label: "ERP",
+    id: "beds",
+    label: "Beds",
     icon: <ClipboardList className="h-4 w-4" />,
     items: [
       {
-        id: "beds",
+        id: "bed-summary",
         label: "เตียง: รวม/ชายหญิง/ทั่วไป/พิเศษ/ICU/semi + ครองเตียง",
-        href: "/ERP/bed-summary",
+        href: "/Beds/bed-summary",
       },
     ],
   },
