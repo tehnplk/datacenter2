@@ -88,11 +88,6 @@ export const DASHBOARD_NAV: NavGroup[] = [
     icon: <Scissors className="h-4 w-4" />,
     items: [
       {
-        id: "realtime",
-        label: "จำนวนเคสผ่าตัดในห้อง OR (real time)",
-        href: "/OR/realtime-cases",
-      },
-      {
         id: "utilization",
         label: "อัตราการใช้ห้องผ่าตัด",
         href: "/OR/utilization",
